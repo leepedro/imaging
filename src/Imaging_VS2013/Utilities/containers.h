@@ -34,8 +34,8 @@ namespace Imaging
 		void operator*=(T rhs);
 		Array<T, N> &operator++(void);	// ++A
 		Array<T, N> operator++(int);	// A++
-		//typename std::enable_if<std::is_integral<T>::value, void>::type operator++(void);
-		//typename std::enable_if<std::is_integral<T>::value, void>::type operator--(void);
+		Array<T, N> &operator--(void);	// --A
+		Array<T, N> operator--(int);	// A--
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Members.

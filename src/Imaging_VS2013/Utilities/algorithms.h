@@ -2,12 +2,8 @@
 #define ALGORITHMS_H
 
 #include <stdexcept>
-#if defined(WIN32)
-#include <safeint.h>
-using namespace msl::utilities;
-#else
-// Include the safeint.h here.
-#endif
+
+#include "safe_operations.h"
 
 /*
 Defines common operations for containers as non-member functions.
@@ -22,11 +18,7 @@ namespace Imaging
 		T_Iterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
-		{
-			if (!::SafeAdd(*itA, *itB, *itC))
-				throw std::overflow_error(
-				"The result of add operation exceeds the limit of the data type.");
-		}
+			SafeAdd(*itA, *itB, *itC);
 	}
 
 	// C = A - B
@@ -35,11 +27,7 @@ namespace Imaging
 		T_Iterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
-		{
-			if (!::SafeSubtract(*itA, *itB, *itC))
-				throw std::overflow_error(
-				"The result of subtract operation exceeds the limit of the data type.");
-		}
+			SafeSubtract(*itA, *itB, *itC);
 	}
 
 	// C = A * B
@@ -48,23 +36,47 @@ namespace Imaging
 		T_Iterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
-		{
-			if (!::SafeMultiply(*itA, *itB, *itC))
-				throw std::overflow_error(
-				"The result of multiply operation exceeds the limit of the data type.");
-		}
+			SafeMultiply(*itA, *itB, *itC);
 	}
 
-	// A++
+	// C = A + b
+	template <typename T_ConstIterator, typename T, typename T_Iterator>
+	void Add(T_ConstIterator itA, T_ConstIterator itA_last, T b, T_Iterator itC)
+	{
+		for (; itA != itA_last; ++itA, ++itC)
+			SafeAdd(*itA, b, *itC);
+	}
+
+	// C = A - b
+	template <typename T_ConstIterator, typename T, typename T_Iterator>
+	void Subtract(T_ConstIterator itA, T_ConstIterator itA_last, T b, T_Iterator itC)
+	{
+		for (; itA != itA_last; ++itA, b, ++itC)
+			SafeSubtract(*itA, b, *itC);
+	}
+
+	// C = A * b
+	template <typename T_ConstIterator, typename T, typename T_Iterator>
+	void Multiply(T_ConstIterator itA, T_ConstIterator itA_last, T b, T_Iterator itC)
+	{
+		for (; itA != itA_last; ++itA, b, ++itC)
+			SafeMultiply(*itA, b, *itC);
+	}
+
+	// ++A
 	template <typename T_Iterator>
 	void Increment(T_Iterator it, T_Iterator itLast)
 	{
 		for (; it != itLast; ++it)
-		{
-			if (!::SafeAdd(*it, 1, *it))
-				throw std::overflow_error(
-				"The result of add operation exceeds the limit of the data type.");
-		}
+			SafeIncrement(*it);
+	}
+
+	// --A
+	template <typename T_Iterator>
+	void Decrement(T_Iterator it, T_Iterator itLast)
+	{
+		for (; it != itLast; ++it)
+			SafeDecrement(*it);
 	}
 }
 
