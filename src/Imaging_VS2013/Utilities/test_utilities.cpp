@@ -42,16 +42,19 @@ void TestArray(void)
 	Imaging::Array<T, 3> array4 = array1 + array2;
 	Imaging::Array<T, 3> array5 = array1 - array2;
 	Imaging::Array<T, 3> array6 = array1 * array2;
-	++array1;
-	array2++;
-	--array3;
-	array4--;
+	array4 = array1 + static_cast<T>(2);
+	array4 = array1 - static_cast<T>(2);
+	array4 = array1 * static_cast<T>(2);
 	array1 += array2;
 	array1 -= array2;
 	array1 *= array2;
 	array1 += static_cast<T>(2);
 	array1 -= static_cast<T>(2);
 	array1 *= static_cast<T>(2);
+	++array1;
+	array2++;
+	--array3;
+	array4--;
 	//Imaging::Array<double, 3> darray1;
 }
 

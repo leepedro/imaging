@@ -3,18 +3,14 @@
 
 #include <stdexcept>
 #include <sstream>
-#if defined(WIN32)
+
 #include <safeint.h>
-//using namespace msl::utilities;
-#else
-// Include the safeint.h here.
-#endif
 
 namespace Imaging
 {
 	template <typename T, typename U>
 	std::enable_if_t<std::is_integral<T>::value && std::is_integral<U>::value, void>
-		SafeAdd(T t, U u, T &result)
+		Add(T t, U u, T &result)
 	{
 		if (!msl::utilities::SafeAdd(t, u, result))
 		{
@@ -27,14 +23,14 @@ namespace Imaging
 
 	template <typename T, typename U>
 	std::enable_if_t<std::is_floating_point<T>::value, void>
-		SafeAdd(T t, U u, T &result)
+		Add(T t, U u, T &result)
 	{
 		result = t + u;
 	}
 
 	template <typename T, typename U>
 	std::enable_if_t<std::is_integral<T>::value && std::is_integral<U>::value, void>
-		SafeSubtract(T t, U u, T &result)
+		Subtract(T t, U u, T &result)
 	{
 		if (!msl::utilities::SafeSubtract(t, u, result))
 		{
@@ -47,14 +43,14 @@ namespace Imaging
 
 	template <typename T, typename U>
 	std::enable_if_t<std::is_floating_point<T>::value, void>
-		SafeSubtract(T t, U u, T &result)
+		Subtract(T t, U u, T &result)
 	{
 		result = t - u;
 	}
 
 	template <typename T, typename U>
 	std::enable_if_t<std::is_integral<T>::value && std::is_integral<U>::value, void>
-		SafeMultiply(T t, U u, T &result)
+		Multiply(T t, U u, T &result)
 	{
 		if (!msl::utilities::SafeMultiply(t, u, result))
 		{
@@ -67,13 +63,13 @@ namespace Imaging
 
 	template <typename T, typename U>
 	std::enable_if_t<std::is_floating_point<T>::value, void>
-		SafeMultiply(T t, U u, T &result)
+		Multiply(T t, U u, T &result)
 	{
 		result = t * u;
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_integral<T>::value, void> SafeIncrement(T &t)
+	std::enable_if_t<std::is_integral<T>::value, void> Increment(T &t)
 	{
 		if (!msl::utilities::SafeAdd(t, 1, t))
 		{
@@ -85,13 +81,13 @@ namespace Imaging
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, void> SafeIncrement(T &t)
+	std::enable_if_t<std::is_floating_point<T>::value, void> Increment(T &t)
 	{
 		++t;
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_integral<T>::value, void> SafeDecrement(T &t)
+	std::enable_if_t<std::is_integral<T>::value, void> Decrement(T &t)
 	{
 		if (!msl::utilities::SafeSubtract(t, 1, t))
 		{
@@ -103,7 +99,7 @@ namespace Imaging
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, void> SafeDecrement(T &t)
+	std::enable_if_t<std::is_floating_point<T>::value, void> Decrement(T &t)
 	{
 		--t;
 	}

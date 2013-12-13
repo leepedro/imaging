@@ -13,6 +13,7 @@ namespace Imaging
 
 	It does NOT have any user defined ctor or protected/private members, so it can use
 	aggregate initialization.
+	NOTE: std::array<T, N> cannot be used with std::initialization_list<T>.
 	*/
 	template <typename T, ::size_t N>
 	class Array
@@ -23,15 +24,18 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Overloaded operators.
-		Array<T, N> operator+(const Array<T, N> &rhs) const;
-		Array<T, N> operator-(const Array<T, N> &rhs) const;
-		Array<T, N> operator*(const Array<T, N> &rhs) const;
-		void operator+=(const Array<T, N> &rhs);
-		void operator-=(const Array<T, N> &rhs);
-		void operator*=(const Array<T, N> &rhs);
-		void operator+=(T rhs);
-		void operator-=(T rhs);
-		void operator*=(T rhs);
+		Array<T, N> operator+(const Array<T, N> &rhs) const;	// A = B + C
+		Array<T, N> operator-(const Array<T, N> &rhs) const;	// A = B - C
+		Array<T, N> operator*(const Array<T, N> &rhs) const;	// A = B * C
+		Array<T, N> operator+(T rhs) const;			// A = B + c
+		Array<T, N> operator-(T rhs) const;			// A = B - c
+		Array<T, N> operator*(T rhs) const;			// A = B * c
+		void operator+=(const Array<T, N> &rhs);	// A += B
+		void operator-=(const Array<T, N> &rhs);	// A -= B
+		void operator*=(const Array<T, N> &rhs);	// A *= B
+		void operator+=(T rhs);			// A += b
+		void operator-=(T rhs);			// A -= b
+		void operator*=(T rhs);			// A *= b
 		Array<T, N> &operator++(void);	// ++A
 		Array<T, N> operator++(int);	// A++
 		Array<T, N> &operator--(void);	// --A
@@ -41,8 +45,6 @@ namespace Imaging
 		// Members.
 		std::array<T, N> data;
 	};
-
-
 }
 
 #include "containers_inl.h"

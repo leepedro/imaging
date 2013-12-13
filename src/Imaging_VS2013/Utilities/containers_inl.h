@@ -6,79 +6,123 @@ namespace Imaging
 	////////////////////////////////////////////////////////////////////////////////////////
 	// Array<T, N>
 
+	// A = B + C
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator+(const Array<T, N> &rhs) const
 	{
 		Array<T, N> result;
-		Add(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
+		AddRange(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
 			result.data.begin());
 		return result;
 	}
 
+	// A = B - C
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator-(const Array<T, N> &rhs) const
 	{
 		Array<T, N> result;
-		Subtract(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
+		SubtractRange(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
 			result.data.begin());
 		return result;
 	}
 
+	// A = B * C
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator*(const Array<T, N> &rhs) const
 	{
 		Array<T, N> result;
-		Multiply(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
+		MultiplyRange(this->data.cbegin(), this->data.cend(), rhs.data.cbegin(),
 			result.data.begin());
 		return result;
 	}
 
+	// A = B + c
+	template <typename T, ::size_t N>
+	Array<T, N> Array<T, N>::operator+(T rhs) const
+	{
+		Array<T, N> result;
+		auto it = this->data.cbegin(), itEnd = this->data.cend();
+		for (auto itDst = result.data.begin(); it != itEnd; ++it, ++itDst)
+			Add(*it, rhs, *itDst);
+		return result;
+	}
+
+	// A = B - c
+	template <typename T, ::size_t N>
+	Array<T, N> Array<T, N>::operator-(T rhs) const
+	{
+		Array<T, N> result;
+		auto it = this->data.cbegin(), itEnd = this->data.cend();
+		for (auto itDst = result.data.begin(); it != itEnd; ++it, ++itDst)
+			Subtract(*it, rhs, *itDst);
+		return result;
+	}
+
+	// A = B * c
+	template <typename T, ::size_t N>
+	Array<T, N> Array<T, N>::operator*(T rhs) const
+	{
+		Array<T, N> result;
+		auto it = this->data.cbegin(), itEnd = this->data.cend();
+		for (auto itDst = result.data.begin(); it != itEnd; ++it, ++itDst)
+			Multiply(*it, rhs, *itDst);
+		return result;
+	}
+
+	// A += B
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator+=(const Array<T, N> &rhs)
 	{
-		Add(this->data.begin(), this->data.end(), rhs.data.cbegin(),
-			this->data.begin());
+		AddRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
 	}
 
+	// A -= B
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator-=(const Array<T, N> &rhs)
 	{
-		Subtract(this->data.begin(), this->data.end(), rhs.data.cbegin(),
-			this->data.begin());
+		SubtractRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
 	}
 
+	// A *= B
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator*=(const Array<T, N> &rhs)
 	{
-		Multiply(this->data.begin(), this->data.end(), rhs.data.cbegin(),
-			this->data.begin());
+		MultiplyRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
 	}
 
+	// A += b
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator+=(T rhs)
-	{
-		Add(this->data.begin(), this->data.end(), rhs, this->data.begin());
+	{		
+		for (auto it = this->data.begin(), itEnd = this->data.end(); it != itEnd; ++it)
+			Add(*it, rhs, *it);
 	}
 
+	// A -= b
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator-=(T rhs)
 	{
-		Subtract(this->data.begin(), this->data.end(), rhs, this->data.begin());
+		for (auto it = this->data.begin(), itEnd = this->data.end(); it != itEnd; ++it)
+			Subtract(*it, rhs, *it);
 	}
 
+	// A *= b
 	template <typename T, ::size_t N>
 	void Array<T, N>::operator*=(T rhs)
 	{
-		Multiply(this->data.begin(), this->data.end(), rhs, this->data.begin());
+		for (auto it = this->data.begin(), itEnd = this->data.end(); it != itEnd; ++it)
+			Multiply(*it, rhs, *it);
 	}
 
+	// ++A
 	template <typename T, ::size_t N>
 	Array<T, N> &Array<T, N>::operator++(void)
 	{
-		Increment(this->data.begin(), this->data.end());
+		IncrementRange(this->data.begin(), this->data.end());
 		return *this;
 	}
 
+	// A++
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator++(int)
 	{
@@ -87,13 +131,15 @@ namespace Imaging
 		return temp;
 	}
 
+	// --A
 	template <typename T, ::size_t N>
 	Array<T, N> &Array<T, N>::operator--(void)
 	{
-		Decrement(this->data.begin(), this->data.end());
+		DecrementRange(this->data.begin(), this->data.end());
 		return *this;
 	}
 
+	// A--
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator--(int)
 	{
