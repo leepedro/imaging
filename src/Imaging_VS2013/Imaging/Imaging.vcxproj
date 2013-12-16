@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8C28DDD2-EC79-4E7E-8E2A-5F30D2BA8FC8}</ProjectGuid>
+    <ProjectGuid>{1E949031-3064-40D4-8799-529F8C6F59CA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Utilities</RootNamespace>
+    <RootNamespace>Imaging</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -57,12 +57,6 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <PostBuildEvent>
-      <Command>copy *.h ..\Imaging\utilities</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy working (passing test) header files into destination directories.</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -82,14 +76,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="algorithms.h" />
-    <ClInclude Include="containers.h" />
-    <ClInclude Include="containers_inl.h" />
-    <ClInclude Include="safe_operations.h" />
-    <ClInclude Include="safe_operations_problem.h" />
+    <ClInclude Include="coordinates.h" />
+    <ClInclude Include="coordinates_inl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="test_utilities.cpp" />
+    <ClCompile Include="test_imaging.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
