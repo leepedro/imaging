@@ -48,6 +48,58 @@ namespace Imaging
 
 		T &width, &height;
 	};
+
+	/*
+	RectWith2Corner: window with two corners;
+	arithmetic point1({x, y}), arithmetic point2({x, y})
+	RectWith1Corner: window with one corner and extension;
+	integral origin({x, y}), unsigned integral size({w, h})
+	RectWithCenter: window with a center and extension;
+	arithmetic center({x, y}), arithmetic half_size({w, h}); 
+	*/
+	template <typename T>
+	class RectWith2Corner
+	{
+		static_assert(std::is_arithmetic<T>::value,
+		"Only arithmetic data types are supported for this class template.");
+
+	public:
+		////////////////////////////////////////////////////////////////////////////////////
+		// Operators.
+		bool operator==(const RectWith2Corner<T> &rhs) const;
+		bool operator!=(const RectWith2Corner<T> &rhs) const;
+
+		////////////////////////////////////////////////////////////////////////////////////
+		// Data.
+		Point2D<T> point1, point2;
+	};
+
+	template <typename T, typename U>
+	class RectWith1Corner
+	{
+		static_assert(std::is_integral<T>::value && std::is_integral<U>::value &&
+		std::is_unsigned<U>::value,
+		"origin must be integral data type and size must be unsigned integral type.");
+
+	public:
+		////////////////////////////////////////////////////////////////////////////////////
+		// Data.
+		Point2D<T> origin;
+		Size2D<U> size;
+	};
+
+	template <typename T, typename U>
+	class RectWithCenter
+	{
+		static_assert(std::is_arithmetic<T>::value,
+		"Only arithmetic data types are supported for this class template.");
+
+	public:
+		////////////////////////////////////////////////////////////////////////////////////
+		// Data.
+		Point2D<T> center;
+		Size2D<U> extension;
+	};
 }
 
 #include "coordinates_inl.h"

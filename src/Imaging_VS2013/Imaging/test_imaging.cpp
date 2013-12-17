@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "coordinates.h"
 #include "image.h"
 
 template <typename T>
@@ -55,6 +54,12 @@ void TestImage(void)
 	ImageFrame<unsigned char> img1;
 	ImageFrame<unsigned char> img2(Size2D<SizeType<unsigned char>>({ 16, 8 }), 1);
 	ImageFrame<unsigned char> img3(16, 8, 1);
+
+	ImageFrame<unsigned char> img4(GetRangeVector<unsigned char>(300),
+		Size2D<SizeType<unsigned char>>({ 30, 10 }));
+
+	TestType<unsigned char> test1;
+	//ROI<unsigned char> roi1;
 }
 
 int main(void)

@@ -22,39 +22,25 @@ namespace Imaging
 	template <typename T>
 	ImageFrame<T> &ImageFrame<T>::operator=(const ImageFrame<T> &src)
 	{
-		if (src.data.size() == src.size.width * src.size.height * src.depth)
-		{
-			this->data_ = src.data;
-			this->depth_ = src.depth;
-			this->size_ = src.size;
-		}
-		else
-		{
-			std::ostringstream errMsg;
-			errMsg << "The size of source image (" << src.size.width << " x " <<
-				src.size.height << ") is not matched with the size of source data (" <<
-				src.data.size() << ").";
-			throw std::runtime_error(errMsg.str());
-		}
+		ImageFrame<T>::EvaluateSize(src.data.size(), src.size.width, src.size.height, src.depth);
+		this->data_ = src.data;
+		this->depth_ = src.depth;
+		this->size_ = src.size;
 	}
 
+	/*
+	Many sources say a move constructor, which calls this operator, must guarante not to
+	throw an exception.
+	Visual Studio 2013 does not support noexcept specifier at this moment.
+	If no exception guarantee is required later, remove EvaluateSize().
+	*/
 	template <typename T>
 	ImageFrame<T> &ImageFrame<T>::operator=(ImageFrame<T> &&src)
 	{
-		if (src.data.size() == src.size.width * src.size.height * src.depth)
-		{
-			this->data_ = std::move(src.data_);
-			this->depth_ = src.depth;
-			this->size_ = src.size;
-		}
-		else
-		{
-			std::ostringstream errMsg;
-			errMsg << "The size of source image (" << src.size.width << " x " <<
-				src.size.height << ") is not matched with the size of its source data (" <<
-				src.data.size() << ").";
-			throw std::runtime_error(errMsg.str());
-		}
+		ImageFrame<T>::EvaluateSize(src.data.size(), src.size.width, src.size.height, src.depth);
+		this->data_ = std::move(src.data_);
+		this->depth_ = src.depth;
+		this->size_ = src.size;
 	}
 
 	template <typename T>
@@ -69,21 +55,43 @@ namespace Imaging
 		this->Reset(Size2D<SizeType>(width, height), d);
 	}
 
-	/*
-	Resizes the std::vector<T> object only if necessary.
-	If size is changed while the total number of elements are the same (reshaping),
-	it does NOT run std::vector<T>::resize().
-	*/
 	template <typename T>
-	void ImageFrame<T>::Reset(const Size2D<SizeType> &sz, SizeType d)
+	ImageFrame<T>::ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz,
+		SizeType d) : ImageFrame<T>()
 	{
-		SizeType nElem = sz.width * sz.height * d;
-		if (this->data.size() != nElem)
-			this->data_.resize(nElem);
+		ImageFrame<T>::EvaluateSize(srcData.size(), sz.width, sz.height, d);
+		this->data_ = srcDdata;
 		this->depth_ = d;
 		this->size_ = sz;
 	}
 
+	template <typename T>
+	ImageFrame<T>::ImageFrame(std::vector<T> &&srcData, const Size2D<SizeType> &sz,
+		SizeType d) : ImageFrame<T>()
+	{
+		ImageFrame<T>::EvaluateSize(srcData.size(), sz.width, sz.height, d);
+		this->data_ = std::move(srcData);
+		this->depth_ = d;
+		this->size_ = sz;
+	}
+
+	/*
+	Since this function does not actually use any class member, it is declared as a static
+	function.
+	It is declared as protected function for now because it is not expected to be used by
+	any client.
+	*/
+	template <typename T>
+	void ImageFrame<T>::EvaluateSize(SizeType length, SizeType w, SizeType h, SizeType d)
+	{
+		if (length != w * h * d)
+		{
+			std::ostringstream errMsg;
+			errMsg << "The size of source image (" << w << " x " << h << " x " << d <<
+				") is not matched with the size of its source data (" << length << ").";
+			throw std::runtime_error(errMsg.str());
+		}
+	}
 
 	template <typename T>
 	void ImageFrame<T>::Clear()
@@ -93,6 +101,23 @@ namespace Imaging
 		this->size_.width = 0;
 		this->size_.height = 0;
 	}
+
+	/*
+	Resizes the std::vector<T> object with zero value but does it only if necessary.
+	If size is changed while the total number of elements are the same (reshaping),
+	it does NOT run std::vector<T>::resize().
+	*/
+	template <typename T>
+	void ImageFrame<T>::Reset(const Size2D<SizeType> &sz, SizeType d)
+	{
+		SizeType nElem = sz.width * sz.height * d;
+		if (this->data.size() != nElem)
+			this->data_.resize(nElem, 0);
+		this->depth_ = d;
+		this->size_ = sz;
+	}
+
+
 		
 }
 

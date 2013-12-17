@@ -128,10 +128,26 @@ void TestArray(void)
 	TestArrayException_imp<unsigned long long>();
 }
 
+void TestRangeVector(void)
+{
+	std::vector<char> v1 = Imaging::GetRangeVector<char>(256);
+	std::vector<signed char> v2 = Imaging::GetRangeVector<signed char>(256);
+	std::vector<unsigned char> v3 = Imaging::GetRangeVector<unsigned char>(256);
+	std::vector<short> v4 = Imaging::GetRangeVector<short>(256);
+	std::vector<unsigned short> v5 = Imaging::GetRangeVector<unsigned short>(256);
+	std::vector<int> v6 = Imaging::GetRangeVector<int>(256);
+	std::vector<unsigned int> v7 = Imaging::GetRangeVector<unsigned int>(256);
+	std::vector<long long> v8 = Imaging::GetRangeVector<long long>(256);
+	std::vector<unsigned long long> v9 = Imaging::GetRangeVector<unsigned long long>(256);
+	std::vector<float> v10 = Imaging::GetRangeVector<float>(256);
+	std::vector<double> v11 = Imaging::GetRangeVector<double>(256);
+}
+
 void TestContainers(void)
 {
 	TestArraySimple();
 	TestArray();
+	TestRangeVector();
 }
 
 int main(void)

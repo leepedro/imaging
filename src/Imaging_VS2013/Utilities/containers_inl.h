@@ -150,6 +150,14 @@ namespace Imaging
 		--*this;
 		return temp;
 	}
+
+	template <typename T>
+	std::vector<T> GetRangeVector(std::size_t length)
+	{
+		std::vector<T> v(length);
+		FillRange(v.begin(), v.end(), static_cast<T>(0));
+		return v;
+	}
 }
 
 #endif

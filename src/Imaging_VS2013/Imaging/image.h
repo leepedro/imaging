@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "coordinates.h"
+
 namespace Imaging
 {
 	template <typename T>
@@ -28,6 +30,8 @@ namespace Imaging
 		// Custom constructors.
 		ImageFrame(const Size2D<SizeType> &sz, SizeType d = 1);
 		ImageFrame(SizeType width, SizeType height, SizeType d = 1);
+		ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz, SizeType d = 1);
+		ImageFrame(std::vector<T> &&srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Accessors.
@@ -37,10 +41,15 @@ namespace Imaging
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Methods.
+		//void CopyFrom()
 		void Clear(void);
 		void Reset(const Size2D<SizeType> &sz, SizeType d);
 
 	protected:
+		////////////////////////////////////////////////////////////////////////////////////
+		// Methods.
+		static void EvaluateSize(SizeType length, SizeType w, SizeType h, SizeType d);
+
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		std::vector<T> data_;
@@ -50,6 +59,12 @@ namespace Imaging
 
 	template <typename T>
 	using SizeType = typename ImageFrame<T>::SizeType;
+
+	template <typename T>
+	using TestType = typename RectWith2Corner<typename SizeType<T>>;
+
+	//template <typename T>
+	//using ROI = typename RectWith1Corner<typename SizeType<T>, typename signed SizeType<T>>;
 }
 
 #include "image_inl.h"

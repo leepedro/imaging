@@ -2,6 +2,7 @@
 #define CONTAINERS_H
 
 #include <array>
+#include <vector>
 
 #include "algorithms.h"
 
@@ -70,6 +71,9 @@ namespace Imaging
 		// Members.
 		std::array<T, N> data;
 	};
+
+	template <typename T>
+	std::vector<T> GetRangeVector(std::size_t length);
 }
 
 #include "containers_inl.h"

@@ -78,6 +78,36 @@ namespace Imaging
 		for (; it != itLast; ++it)
 			Decrement(*it);
 	}
+
+	/*
+	Fill the integral range value in an ascending order while preventing overflow by
+	comparing the range value with the maximum value at each iteration. (inefficient)
+	*/
+	template <typename Iterator, typename T>
+	std::enable_if_t<std::is_integral<T>::value, void>
+		FillRange(Iterator it, Iterator itLast, T initValue)
+	{
+		for (auto value = initValue, limitMax = std::numeric_limits<T>::max(),
+			limitMin = std::numeric_limits<T>::min(); it != itLast; ++it)
+		{
+			*it = value;
+			if (value == limitMax)
+				value = limitMin;
+			else
+				++value;
+		}
+	}
+
+	/*
+	Fill the floating point range value in an ascending order without the range check.
+	*/
+	template <typename Iterator, typename T>
+	std::enable_if_t<std::is_floating_point<T>::value, void>
+		FillRange(Iterator it, Iterator itLast, T initValue)
+	{
+		for (auto value = initValue; it != itLast; ++it, ++value)
+			*it = value;
+	}
 }
 
 #endif
