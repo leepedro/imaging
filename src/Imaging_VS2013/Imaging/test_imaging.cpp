@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "coordinates.h"
+#include "image.h"
 
 template <typename T>
 void TestPoint2D(void)
@@ -36,17 +37,28 @@ void TestPoint2D(void)
 	// Point2D(const Array<T, 2> &) +
 	// Point2D &operator=(const Point2D<T> &)
 	pt5 = pt1 + pt1;
-
-	std::cout << std::endl;
-
 }
 
 void TestCoordinates(void)
 {
 	TestPoint2D<int>();
+	TestPoint2D<unsigned int>();
+	TestPoint2D<long long>();
+	TestPoint2D<unsigned long long>();
+	TestPoint2D<float>();
+	TestPoint2D<double>();
+}
+
+void TestImage(void)
+{
+	using namespace Imaging;
+	ImageFrame<unsigned char> img1;
+	ImageFrame<unsigned char> img2(Size2D<SizeType<unsigned char>>({ 16, 8 }), 1);
+	ImageFrame<unsigned char> img3(16, 8, 1);
 }
 
 int main(void)
 {
 	TestCoordinates();
+	TestImage();
 }

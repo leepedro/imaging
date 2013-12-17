@@ -24,11 +24,11 @@ namespace Imaging
 	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void> 
 		Add(T t, U u, T &result)
 	{
-		AddImp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
+		Add_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
 	template <typename T, typename U>
-	void AddImp(T t, U u, T &result, std::true_type, std::true_type)
+	void Add_imp(T t, U u, T &result, std::true_type, std::true_type)
 	{
 		if (!SafeAdd(t, u, result))
 		{
@@ -40,19 +40,19 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	void AddImp(T t, U u, T &result, std::true_type, std::false_type)
+	void Add_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
 		static_assert(false, "Unsupported scenario.");
 	}
 
 	template <typename T, typename U>
-	void AddImp(T t, U u, T &result, std::false_type, std::true_type)
+	void Add_imp(T t, U u, T &result, std::false_type, std::true_type)
 	{
 		result = t + u;
 	}
 
 	template <typename T, typename U>
-	void AddImp(T t, U u, T &result, std::false_type, std::false_type)
+	void Add_imp(T t, U u, T &result, std::false_type, std::false_type)
 	{
 		result = t + u;
 	}
@@ -61,11 +61,11 @@ namespace Imaging
 	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void>
 		Subtract(T t, U u, T &result)
 	{
-		SubtractImp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
+		Subtract_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
 	template <typename T, typename U>
-	void SubtractImp(T t, U u, T &result, std::true_type, std::true_type)
+	void Subtract_imp(T t, U u, T &result, std::true_type, std::true_type)
 	{
 		if (!SafeSubtract(t, u, result))
 		{
@@ -77,19 +77,19 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	void SubtractImp(T t, U u, T &result, std::true_type, std::false_type)
+	void Subtract_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
 		static_assert(false, "Unsupported scenario.");
 	}
 
 	template <typename T, typename U>
-	void SubtractImp(T t, U u, T &result, std::false_type, std::true_type)
+	void Subtract_imp(T t, U u, T &result, std::false_type, std::true_type)
 	{
 		result = t - u;
 	}
 
 	template <typename T, typename U>
-	void SubtractImp(T t, U u, T &result, std::false_type, std::false_type)
+	void Subtract_imp(T t, U u, T &result, std::false_type, std::false_type)
 	{
 		result = t - u;
 	}
@@ -98,11 +98,11 @@ namespace Imaging
 	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void>
 		Multiply(T t, U u, T &result)
 	{
-		MultiplyImp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
+		Multiply_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
 	template <typename T, typename U>
-	void MultiplyImp(T t, U u, T &result, std::true_type, std::true_type)
+	void Multiply_imp(T t, U u, T &result, std::true_type, std::true_type)
 	{
 		if (!SafeMultiply(t, u, result))
 		{
@@ -114,19 +114,19 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	void MultiplyImp(T t, U u, T &result, std::true_type, std::false_type)
+	void Multiply_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
 		static_assert(false, "Unsupported scenario.");
 	}
 
 	template <typename T, typename U>
-	void MultiplyImp(T t, U u, T &result, std::false_type, std::true_type)
+	void Multiply_imp(T t, U u, T &result, std::false_type, std::true_type)
 	{
 		result = t * u;
 	}
 
 	template <typename T, typename U>
-	void MultiplyImp(T t, U u, T &result, std::false_type, std::false_type)
+	void Multiply_imp(T t, U u, T &result, std::false_type, std::false_type)
 	{
 		result = t * u;
 	}

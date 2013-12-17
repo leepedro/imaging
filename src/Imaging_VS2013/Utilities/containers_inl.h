@@ -76,21 +76,21 @@ namespace Imaging
 	template <typename T, ::size_t N> template <typename U>
 	void Array<T, N>::operator+=(const Array<U, N> &rhs)
 	{
-		AddRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
+		AddRange(rhs.data.cbegin(), rhs.data.cend(), this->data.begin());
 	}
 
 	// A -= B
 	template <typename T, ::size_t N> template <typename U>
 	void Array<T, N>::operator-=(const Array<U, N> &rhs)
 	{
-		SubtractRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
+		SubtractRange(rhs.data.cbegin(), rhs.data.cend(), this->data.begin());
 	}
 
 	// A *= B
 	template <typename T, ::size_t N> template <typename U>
 	void Array<T, N>::operator*=(const Array<U, N> &rhs)
 	{
-		MultiplyRange(this->data.begin(), this->data.end(), rhs.data.cbegin());
+		MultiplyRange(rhs.data.cbegin(), rhs.data.cend(), this->data.begin());
 	}
 
 	// A += b

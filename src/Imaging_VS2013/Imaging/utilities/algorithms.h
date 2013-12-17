@@ -13,8 +13,8 @@ shared by multiple container classes.
 namespace Imaging
 {
 	// C = A + B
-	template <typename InputIterator, typename OutputIterator>
-	void AddRange(InputIterator itA, InputIterator itA_last, InputIterator itB,
+	template <typename InputIteratorA, typename InputIteratorB, typename OutputIterator>
+	void AddRange(InputIteratorA itA, InputIteratorA itA_last, InputIteratorB itB,
 		OutputIterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
@@ -22,8 +22,8 @@ namespace Imaging
 	}
 
 	// C = A - B
-	template <typename InputIterator, typename OutputIterator>
-	void SubtractRange(InputIterator itA, InputIterator itA_last, InputIterator itB,
+	template <typename InputIteratorA, typename InputIteratorB, typename OutputIterator>
+	void SubtractRange(InputIteratorA itA, InputIteratorA itA_last, InputIteratorB itB,
 		OutputIterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
@@ -31,49 +31,49 @@ namespace Imaging
 	}
 
 	// C = A * B
-	template <typename InputIterator, typename OutputIterator>
-	void MultiplyRange(InputIterator itA, InputIterator itA_last, InputIterator itB,
+	template <typename InputIteratorA, typename InputIteratorB, typename OutputIterator>
+	void MultiplyRange(InputIteratorA itA, InputIteratorA itA_last, InputIteratorB itB,
 		OutputIterator itC)
 	{
 		for (; itA != itA_last; ++itA, ++itB, ++itC)
 			Multiply(*itA, *itB, *itC);
 	}
 
-	// A += B
-	template <typename InputIterator, typename OutputIterator>
-	void AddRange(OutputIterator itA, OutputIterator itA_last, InputIterator itB)
+	// B += A
+	template <typename InputIterator, typename InOutputIterator>
+	void AddRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
 	{
 		for (; itA != itA_last; ++itA, ++itB)
-			Add(*itA, *itB, *itA);
+			Add(*itB, *itA, *itB);
 	}
 
-	// A -= B
-	template <typename InputIterator, typename OutputIterator>
-	void SubtractRange(OutputIterator itA, OutputIterator itA_last, InputIterator itB)
+	// B -= A
+	template <typename InputIterator, typename InOutputIterator>
+	void SubtractRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
 	{
 		for (; itA != itA_last; ++itA, ++itB)
-			Subtract(*itA, *itB, *itA);
+			Subtract(*itB, *itA, *itB);
 	}
 
-	// A *= B
-	template <typename InputIterator, typename OutputIterator>
-	void MultiplyRange(OutputIterator itA, OutputIterator itA_last, InputIterator itB)
+	// B *= A
+	template <typename InputIterator, typename InOutputIterator>
+	void MultiplyRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
 	{
 		for (; itA != itA_last; ++itA, ++itB)
-			Multiply(*itA, *itB, *itA);
+			Multiply(*itB, *itA, *itB);
 	}
 
 	// ++A
-	template <typename OutputIterator>
-	void IncrementRange(OutputIterator it, OutputIterator itLast)
+	template <typename Iterator>
+	void IncrementRange(Iterator it, Iterator itLast)
 	{
 		for (; it != itLast; ++it)
 			Increment(*it);
 	}
 
 	// --A
-	template <typename OutputIterator>
-	void DecrementRange(OutputIterator it, OutputIterator itLast)
+	template <typename Iterator>
+	void DecrementRange(Iterator it, Iterator itLast)
 	{
 		for (; it != itLast; ++it)
 			Decrement(*it);

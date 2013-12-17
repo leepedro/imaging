@@ -20,10 +20,33 @@ namespace Imaging
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
+		Point2D(T x, T y);
 		Point2D(const Array<T, 2> &srcData);
 		//Point2D &operator=(const Array<T, 2> &srcData);	// optional, no need
 
 		T &x, &y;
+	};
+
+	template <typename T>
+	class Size2D : public Array<T, 2>
+	{
+		static_assert(std::is_arithmetic<T>::value,
+		"Only arithmetic data types are supported for this class template.");
+
+	public:
+		////////////////////////////////////////////////////////////////////////////////////
+		// Default constructors.
+		Size2D(void);
+		Size2D(const Size2D<T> &src);
+		Size2D &operator=(const Size2D<T> &src);
+
+		////////////////////////////////////////////////////////////////////////////////////
+		// Custom constructors.
+		Size2D(T width, T height);
+		Size2D(const Array<T, 2> &srcData);
+		//Size2D &operator=(const Array<T, 2> &srcData);	// optional, no need
+
+		T &width, &height;
 	};
 }
 
