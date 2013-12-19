@@ -22,25 +22,29 @@ namespace Imaging
 	template <typename T>
 	ImageFrame<T> &ImageFrame<T>::operator=(const ImageFrame<T> &src)
 	{
-		ImageFrame<T>::EvaluateSize(src.data.size(), src.size.width, src.size.height, src.depth);
+		ImageFrame<T>::EvalSize(src.data.size(), src.size.width, src.size.height, src.depth);
 		this->data_ = src.data;
 		this->depth_ = src.depth;
 		this->size_ = src.size;
+		return *this;
 	}
 
 	/*
 	Many sources say a move constructor, which calls this operator, must guarante not to
 	throw an exception.
 	Visual Studio 2013 does not support noexcept specifier at this moment.
-	If no exception guarantee is required later, remove EvaluateSize().
+	If no exception guarantee is required later, remove EvalSize().
 	*/
 	template <typename T>
 	ImageFrame<T> &ImageFrame<T>::operator=(ImageFrame<T> &&src)
 	{
-		ImageFrame<T>::EvaluateSize(src.data.size(), src.size.width, src.size.height, src.depth);
+		ImageFrame<T>::EvalSize(src.data.size(), src.size.width, src.size.height, src.depth);
 		this->data_ = std::move(src.data_);
 		this->depth_ = src.depth;
 		this->size_ = src.size;
+		src.depth_ = 0;
+		src.size_ = { 0, 0 };
+		return *this;
 	}
 
 	template <typename T>
@@ -49,18 +53,18 @@ namespace Imaging
 		this->Reset(sz, d);
 	}
 
-	template <typename T>
-	ImageFrame<T>::ImageFrame(SizeType width, SizeType height, SizeType d) : ImageFrame<T>()
-	{
-		this->Reset(Size2D<SizeType>(width, height), d);
-	}
+	//template <typename T>
+	//ImageFrame<T>::ImageFrame(SizeType width, SizeType height, SizeType d) : ImageFrame<T>()
+	//{
+	//	this->Reset(Size2D<SizeType>(width, height), d);
+	//}
 
 	template <typename T>
 	ImageFrame<T>::ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz,
 		SizeType d) : ImageFrame<T>()
 	{
-		ImageFrame<T>::EvaluateSize(srcData.size(), sz.width, sz.height, d);
-		this->data_ = srcDdata;
+		ImageFrame<T>::EvalSize(srcData.size(), sz.width, sz.height, d);
+		this->data_ = srcData;
 		this->depth_ = d;
 		this->size_ = sz;
 	}
@@ -69,28 +73,30 @@ namespace Imaging
 	ImageFrame<T>::ImageFrame(std::vector<T> &&srcData, const Size2D<SizeType> &sz,
 		SizeType d) : ImageFrame<T>()
 	{
-		ImageFrame<T>::EvaluateSize(srcData.size(), sz.width, sz.height, d);
+		ImageFrame<T>::EvalSize(srcData.size(), sz.width, sz.height, d);
 		this->data_ = std::move(srcData);
 		this->depth_ = d;
 		this->size_ = sz;
 	}
 
-	/*
-	Since this function does not actually use any class member, it is declared as a static
-	function.
-	It is declared as protected function for now because it is not expected to be used by
-	any client.
-	*/
 	template <typename T>
-	void ImageFrame<T>::EvaluateSize(SizeType length, SizeType w, SizeType h, SizeType d)
+	typename ImageFrame<T>::ConstIterator ImageFrame<T>::GetCIterator(const Point2D<SizeType> &pt) const
 	{
-		if (length != w * h * d)
-		{
-			std::ostringstream errMsg;
-			errMsg << "The size of source image (" << w << " x " << h << " x " << d <<
-				") is not matched with the size of its source data (" << length << ").";
-			throw std::runtime_error(errMsg.str());
-		}
+		this->EvalPosition(pt);
+		return this->data.cbegin() + this->GetOffset(pt);
+	}
+
+	template <typename T>
+	typename ImageFrame<T>::Iterator ImageFrame<T>::GetIterator(const Point2D<SizeType> &pt)
+	{
+		this->EvalPosition(pt);
+		return this->data_.begin() + this->GetOffset(pt);
+	}
+
+	template <typename T>
+	typename ImageFrame<T>::SizeType ImageFrame<T>::GetOffset(const Point2D<SizeType> &pt) const
+	{
+		return this->depth * this->size.width * pt.y + this->depth * pt.x;
 	}
 
 	template <typename T>
@@ -100,6 +106,77 @@ namespace Imaging
 		this->depth_ = 0;
 		this->size_.width = 0;
 		this->size_.height = 0;
+	}
+
+	template <typename T>
+	void ImageFrame<T>::CopyFrom(const ImageFrame<T> &imgSrc, const ROI<T> &roiSrc,
+		const Point2D<SizeType> &orgnDst)
+	{
+		this->EvalDepth(imgSrc.depth);
+		imgSrc->EvalRoi(roiSrc);
+		this->EvalRoi(orgnDst, roiSrc.size);
+
+		// Copy line by line.
+		auto itSrc = imgSrc.GetCIterator(roiSrc.origin);
+		auto itDst = this->GetIterator(orgnDst);
+		CopyLines(itSrc, imgSrc.size.width * imgSrc.depth, itDst,
+			this->size.width * this->depth, roiSrc.size.width, roiSrc.size.height);
+	}
+
+	template <typename T>
+	void ImageFrame<T>::EvalDepth(SizeType depth) const
+	{
+		if (this->depth != depth)
+		{
+			std::ostringstream errMsg;
+			errMsg << "The depth of this image frame (=" << this->depth <<
+				") is not matched to " << depth << ".";
+			throw std::out_of_range(errMsg.str());
+		}
+	}
+
+	template <typename T>
+	void ImageFrame<T>::EvalPosition(const Point2D<SizeType> &pt) const
+	{
+		this->EvalRoi(pt, { 1, 1 });
+	}
+
+	template <typename T>
+	void ImageFrame<T>::EvalRoi(const ROI<T> &roi) const
+	{
+		this->EvalRoi(roi.origin, roi.size);
+	}
+
+	template <typename T>
+	void ImageFrame<T>::EvalRoi(const Point2D<SizeType> &orgn, const Size2D<SizeType> &sz) const
+	{
+		Point2D<SizeType> ptEnd = orgn + sz;	// excluding point
+		if (orgn.x < 0 || orgn.y < 0 || ptEnd.x > this->size.width ||
+			ptEnd.y > this->size.height)
+		{
+			std::ostringstream errMsg;
+			errMsg << "[" << orgn.x << ", " << orgn.y << "] ~ (" << ptEnd.x <<
+				", " << ptEnd.y << ") is out of range.";
+			throw std::out_of_range(errMsg.str());
+		}
+	}
+
+	/*
+	Since this function does not actually use any class member, it is declared as a static
+	function.
+	It is declared as protected function for now because it is not expected to be used by
+	any client.
+	*/
+	template <typename T>
+	void ImageFrame<T>::EvalSize(SizeType length, SizeType w, SizeType h, SizeType d)
+	{
+		if (length != w * h * d)
+		{
+			std::ostringstream errMsg;
+			errMsg << "The size of source image (" << w << " x " << h << " x " << d <<
+				") is not matched with the size of its source data (" << length << ").";
+			throw std::runtime_error(errMsg.str());
+		}
 	}
 
 	/*

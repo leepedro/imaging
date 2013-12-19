@@ -50,15 +50,12 @@ namespace Imaging
 	};
 
 	/*
-	RectWith2Corner: window with two corners;
-	arithmetic point1({x, y}), arithmetic point2({x, y})
-	RectWith1Corner: window with one corner and extension;
-	integral origin({x, y}), unsigned integral size({w, h})
-	RectWithCenter: window with a center and extension;
-	arithmetic center({x, y}), arithmetic half_size({w, h}); 
+	RectTypeA: a rectangle with two corners; point1<T>({x, y}), point2<T>({x, y})
+	RectTypeB: a rectangle with one corner and extension; origin<T>({x, y}), size<U>({w, h})
+	RectTypeC: a rectangle with a center and extension; center<T>({x, y}), extension<U>({w, h})
 	*/
 	template <typename T>
-	class RectWith2Corner
+	class RectTypeA
 	{
 		static_assert(std::is_arithmetic<T>::value,
 		"Only arithmetic data types are supported for this class template.");
@@ -66,39 +63,54 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Operators.
-		bool operator==(const RectWith2Corner<T> &rhs) const;
-		bool operator!=(const RectWith2Corner<T> &rhs) const;
+		bool operator==(const RectTypeA<T> &rhs) const;
+		bool operator!=(const RectTypeA<T> &rhs) const;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		Point2D<T> point1, point2;
 	};
 
-	template <typename T, typename U>
-	class RectWith1Corner
+	/*
+	It does NOT have any user defined ctor or protected/private members, so it can use
+	aggregate initialization.
+	This class template has only two data members, and they were derived from
+	std::array<T, N>, so there is not much benefit by implementing custom ctors.
+	*/
+	template <typename T>
+	class RectTypeB
 	{
-		static_assert(std::is_integral<T>::value && std::is_integral<U>::value &&
-		std::is_unsigned<U>::value,
+		static_assert(std::is_arithmetic<T>::value,
 		"origin must be integral data type and size must be unsigned integral type.");
 
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
+		// Operators.
+		bool operator==(const RectTypeB<T> &rhs) const;
+		bool operator!=(const RectTypeB<T> &rhs) const;
+
+		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		Point2D<T> origin;
-		Size2D<U> size;
+		Size2D<T> size;
 	};
 
-	template <typename T, typename U>
-	class RectWithCenter
+	template <typename T>
+	class RectTypeC
 	{
 		static_assert(std::is_arithmetic<T>::value,
 		"Only arithmetic data types are supported for this class template.");
 
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
+		// Operators.
+		bool operator==(const RectTypeC<T> &rhs) const;
+		bool operator!=(const RectTypeC<T> &rhs) const;
+
+		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		Point2D<T> center;
-		Size2D<U> extension;
+		Size2D<T> extension;
 	};
 }
 

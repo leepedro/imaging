@@ -7,6 +7,26 @@
 
 namespace Imaging
 {
+	// Forward declarations.
+	template <typename T> class ImageFrame;
+
+	// Template aliases.
+	/*
+	Since template alias cannot be forward declared, all template aliases should be
+	declared before any class is defined.
+	*/
+	template <typename T>
+	using SizeT = typename ImageFrame<T>::SizeType;
+
+	//template <typename T>
+	//using IteratorT = typename ImageFrame<T>::Iterator;
+
+	//template <typename T>
+	//using ConstIteratorT = typename ImageFrame<T>::ConstIterator;
+
+	template <typename T>
+	using ROI = typename RectTypeB<SizeT<T>>;
+
 	template <typename T>
 	class ImageFrame
 	{
@@ -17,6 +37,8 @@ namespace Imaging
 		////////////////////////////////////////////////////////////////////////////////////
 		// Types and constants.
 		typedef typename std::vector<T>::size_type SizeType;
+		typedef typename std::vector<T>::const_iterator ConstIterator;
+		typedef typename std::vector<T>::iterator Iterator;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Default constructors.
@@ -29,7 +51,7 @@ namespace Imaging
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
 		ImageFrame(const Size2D<SizeType> &sz, SizeType d = 1);
-		ImageFrame(SizeType width, SizeType height, SizeType d = 1);
+		//ImageFrame(SizeType width, SizeType height, SizeType d = 1);
 		ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 		ImageFrame(std::vector<T> &&srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 
@@ -41,14 +63,25 @@ namespace Imaging
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Methods.
-		//void CopyFrom()
 		void Clear(void);
+		void CopyFrom(const ImageFrame<T> &imgSrc, const ROI<T> &roiSrc,
+			const Point2D<SizeType> &orgnDst);
 		void Reset(const Size2D<SizeType> &sz, SizeType d);
 
 	protected:
 		////////////////////////////////////////////////////////////////////////////////////
+		// Accessors.
+		ConstIterator GetCIterator(const Point2D<SizeType> &pt) const;
+		Iterator GetIterator(const Point2D<SizeType> &pt);
+		SizeType GetOffset(const Point2D<SizeType> &pt) const;
+
+		////////////////////////////////////////////////////////////////////////////////////
 		// Methods.
-		static void EvaluateSize(SizeType length, SizeType w, SizeType h, SizeType d);
+		void EvalDepth(SizeType depth) const;
+		void EvalPosition(const Point2D<SizeType> &pt) const;
+		void EvalRoi(const ROI<T> &roi) const;
+		void EvalRoi(const Point2D<SizeType> &orgn, const Size2D<SizeType> &sz) const;
+		static void EvalSize(SizeType length, SizeType w, SizeType h, SizeType d);
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
@@ -56,15 +89,6 @@ namespace Imaging
 		SizeType depth_;
 		Size2D<SizeType> size_;
 	};
-
-	template <typename T>
-	using SizeType = typename ImageFrame<T>::SizeType;
-
-	template <typename T>
-	using TestType = typename RectWith2Corner<typename SizeType<T>>;
-
-	//template <typename T>
-	//using ROI = typename RectWith1Corner<typename SizeType<T>, typename signed SizeType<T>>;
 }
 
 #include "image_inl.h"
