@@ -32,46 +32,61 @@ template <typename T>
 void TestArray_imp(void)
 {	// Test operators of Array<T, N>.
 
-	// Default ctor with list initialization.
-	Imaging::Array<T, 3> array1 = { 1, 2, 3 };
-	Imaging::Array<T, 3> array2{ { 4, 5, 6 } };
+	std::cout << "Testing constructors of Array<" << typeid(T).name() << ", N>." <<
+		std::endl;
+
+	// (default) Array<T, N>(void)
+	Imaging::Array<T, 3> array1;	// NON-ZERO!
+	array1.data[0] = 0;
+
+	// Brace/Aggregate initialization.
+	Imaging::Array<T, 3> array2 = { 1, 2, 3 };
+	Imaging::Array<T, 3> array3{ 4, 5, 6 };
+	Imaging::Array<T, 3> array4{ { 7, 8, 9 } };
 
 	// Elements with missing initialization list is initialized with 0.
-	Imaging::Array<T, 3> array3{ 7, 8 };
+	Imaging::Array<T, 3> array5{ 7, 8 };
 
 	// Following generates "C2078: too many initializers". Good!
 	//Imaging::Array<T, 3> array4{ 7, 8, 9, 10 };
 	
+	std::cout << "Testing operators of Array<" << typeid(T).name() << ", N>." <<	std::endl;
+
 	Imaging::Array<int, 3> arrayInt = { 1, 2, 3 };
-	Imaging::Array<T, 3> array4 = array1 + arrayInt;	// {2, 4, 6}
-	Imaging::Array<T, 3> array5 = array1 - arrayInt;	// {0, 0, 0}
-	Imaging::Array<T, 3> array6 = array1 * arrayInt;	// {1, 4, 9}
+	Imaging::Array<T, 3> array6 = array2 + arrayInt;	// {2, 4, 6}
+	Imaging::Array<T, 3> array7 = array2 - arrayInt;	// {0, 0, 0}
+	Imaging::Array<T, 3> array8 = array2 * arrayInt;	// {1, 4, 9}
 
-	Imaging::Array<T, 3> array7 = { 1, 2, 3 }, array8 = { 1, 2, 3 }, array9 = { 1, 2, 3 };
-	array7 += arrayInt;	// {2, 4, 6}
-	array8 -= arrayInt;	// {0, 0, 0}
-	array9 *= arrayInt; // {1, 4, 9}
+	Imaging::Array<T, 3> array9 = { 1, 2, 3 }, array10 = { 1, 2, 3 }, array11 = { 1, 2, 3 };
+	array9 += arrayInt;		// {2, 4, 6}
+	array10 -= arrayInt;	// {0, 0, 0}
+	array11 *= arrayInt;	// {1, 4, 9}
 
-	Imaging::Array<T, 3> array10 = array1 + static_cast<int>(2);	// {3, 4, 5}
-	Imaging::Array<T, 3> array11 = array1 - static_cast<int>(1);	// {0, 1, 2}
-	Imaging::Array<T, 3> array12 = array1 * static_cast<int>(2);	// {2, 4, 6}
+	Imaging::Array<T, 3> array12 = array2 + static_cast<int>(2);	// {3, 4, 5}
+	Imaging::Array<T, 3> array13 = array2 - static_cast<int>(1);	// {0, 1, 2}
+	Imaging::Array<T, 3> array14 = array2 * static_cast<int>(2);	// {2, 4, 6}
 
-	Imaging::Array<T, 3> array13 = { 1, 2, 3 }, array14 = { 1, 2, 3 }, array15 = { 1, 2, 3 };
-	array13 += static_cast<int>(2);	// {3, 4, 5}
-	array14 -= static_cast<int>(1);	// {0, 1, 2}
-	array15 *= static_cast<int>(2);	// {2, 4, 6}
+	Imaging::Array<T, 3> array15 = { 1, 2, 3 }, array16 = { 1, 2, 3 }, array17 = { 1, 2, 3 };
+	array15 += static_cast<int>(2);	// {3, 4, 5}
+	array16 -= static_cast<int>(1);	// {0, 1, 2}
+	array17 *= static_cast<int>(2);	// {2, 4, 6}
 
-	Imaging::Array<T, 3> array16 = { 1, 2, 3 }, array17 = { 1, 2, 3 }, array18 = { 1, 2, 3 },
-		array19 = { 1, 2, 3 };
-	++array16;	// {2, 3, 4}
-	array17++;	// {2, 3, 4}
-	--array18;	// {0, 1, 2}
-	array19--;	// {0, 1, 2}
+	Imaging::Array<T, 3> array18 = { 1, 2, 3 }, array19 = { 1, 2, 3 }, array20 = { 1, 2, 3 },
+		array21 = { 1, 2, 3 };
+	++array18;	// {2, 3, 4}
+	array19++;	// {2, 3, 4}
+	--array20;	// {0, 1, 2}
+	array21--;	// {0, 1, 2}
+
+	std::cout << "Completed testing Array<" << typeid(T).name() << ", N>." << std::endl;
 }
 
 template <typename T>
 void TestArrayException_imp(void)
 {	// Test overflow exceptions of Array<T, N>.
+
+	std::cout << "Testing overflow exceptions of Array<" << typeid(T).name() << ", N>" <<
+		std::endl;
 
 	try
 	{
@@ -79,7 +94,7 @@ void TestArrayException_imp(void)
 		++array1;
 		std::cout << array1.data[0] << " is a valid value." << std::endl;
 	}
-	catch (const std::exception &ex)
+	catch (const std::overflow_error &ex)
 	{
 		std::cout << ex.what() << std::endl;
 	}
@@ -94,7 +109,7 @@ void TestArrayException_imp(void)
 		--array1;
 		std::cout << array1.data[0] << " is a valid value." << std::endl;
 	}
-	catch (const std::exception &ex)
+	catch (const std::overflow_error &ex)
 	{
 		std::cout << ex.what() << std::endl;
 	}

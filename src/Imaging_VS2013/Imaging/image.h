@@ -25,7 +25,7 @@ namespace Imaging
 	//using ConstIteratorT = typename ImageFrame<T>::ConstIterator;
 
 	template <typename T>
-	using ROI = typename RectTypeB<SizeT<T>>;
+	using ROI = typename RectTypeB<SizeT<T>, SizeT<T>>;
 
 	template <typename T>
 	class ImageFrame
@@ -42,7 +42,7 @@ namespace Imaging
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Default constructors.
-		ImageFrame(void);
+		ImageFrame(void) = default;
 		ImageFrame(const ImageFrame<T> &src);
 		ImageFrame(ImageFrame<T> &&src);
 		ImageFrame<T> &operator=(const ImageFrame<T> &src);
@@ -51,15 +51,14 @@ namespace Imaging
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
 		ImageFrame(const Size2D<SizeType> &sz, SizeType d = 1);
-		//ImageFrame(SizeType width, SizeType height, SizeType d = 1);
 		ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 		ImageFrame(std::vector<T> &&srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Accessors.
-		const std::vector<T> &data;
-		const SizeType &depth;
-		const Size2D<SizeType> &size;
+		const std::vector<T> &data = this->data_;
+		const SizeType &depth = this->depth_;
+		const Size2D<SizeType> &size = this->size_;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Methods.
@@ -86,8 +85,8 @@ namespace Imaging
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		std::vector<T> data_;
-		SizeType depth_;
-		Size2D<SizeType> size_;
+		SizeType depth_ = 0;
+		Size2D<SizeType> size_ = Size2D<SizeType>(0, 0);
 	};
 }
 

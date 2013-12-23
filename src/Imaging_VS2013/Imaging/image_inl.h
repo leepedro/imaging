@@ -3,9 +3,8 @@
 
 namespace Imaging
 {
-	template <typename T>
-	ImageFrame<T>::ImageFrame(void) : data(data_), depth(depth_), size(size_),
-		depth_(0), size_(Size2D<SizeType>({ 0, 0 })) {}
+	////////////////////////////////////////////////////////////////////////////////////
+	// ImageFrame<T>
 
 	template <typename T>
 	ImageFrame<T>::ImageFrame(const ImageFrame<T> &src) : ImageFrame<T>()
@@ -52,12 +51,6 @@ namespace Imaging
 	{
 		this->Reset(sz, d);
 	}
-
-	//template <typename T>
-	//ImageFrame<T>::ImageFrame(SizeType width, SizeType height, SizeType d) : ImageFrame<T>()
-	//{
-	//	this->Reset(Size2D<SizeType>(width, height), d);
-	//}
 
 	template <typename T>
 	ImageFrame<T>::ImageFrame(const std::vector<T> &srcData, const Size2D<SizeType> &sz,
@@ -194,6 +187,8 @@ namespace Imaging
 		this->size_ = sz;
 	}
 
+	// ImageFrame<T>
+	////////////////////////////////////////////////////////////////////////////////////
 
 		
 }

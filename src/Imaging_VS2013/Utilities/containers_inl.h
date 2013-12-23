@@ -151,6 +151,9 @@ namespace Imaging
 		return temp;
 	}
 
+	// Array<T, N>
+	////////////////////////////////////////////////////////////////////////////////////////
+
 	template <typename T>
 	std::vector<T> GetRangeVector(std::size_t length)
 	{

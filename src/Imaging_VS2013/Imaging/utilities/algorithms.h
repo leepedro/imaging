@@ -108,6 +108,14 @@ namespace Imaging
 		for (auto value = initValue; it != itLast; ++it, ++value)
 			*it = value;
 	}
+
+	template <typename InputIterator, typename OutputIterator, typename SizeType>
+	void CopyLines(InputIterator itSrc, SizeType stepSrc, OutputIterator itDst,
+		SizeType stepDst, SizeType nElemPerLine, SizeType nLines)
+	{
+		for (auto H = 0; H != nLines; ++H, itSrc += stepSrc, itDst += stepDst)
+			std::copy_n(it_src, nElemPerLine, itDst);
+	}
 }
 
 #endif

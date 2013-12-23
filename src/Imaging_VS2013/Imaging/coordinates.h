@@ -14,17 +14,16 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Default constructors.
-		Point2D(void);
-		Point2D(const Point2D<T> &src);
-		Point2D &operator=(const Point2D<T> &src);
+		Point2D(void) = default;
+		Point2D &operator=(const Point2D<T> &src) = default;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
 		Point2D(T x, T y);
 		Point2D(const Array<T, 2> &srcData);
-		//Point2D &operator=(const Array<T, 2> &srcData);	// optional, no need
 
-		T &x, &y;
+		T &x = this->data.at(0);
+		T &y = this->data.at(1);
 	};
 
 	template <typename T>
@@ -36,23 +35,22 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Default constructors.
-		Size2D(void);
-		Size2D(const Size2D<T> &src);
-		Size2D &operator=(const Size2D<T> &src);
+		Size2D(void) = default;
+		Size2D &operator=(const Size2D<T> &src) = default;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
 		Size2D(T width, T height);
 		Size2D(const Array<T, 2> &srcData);
-		//Size2D &operator=(const Array<T, 2> &srcData);	// optional, no need
 
-		T &width, &height;
+		T &width = this->data.at(0);
+		T &height = this->data.at(1);
 	};
 
 	/*
-	RectTypeA: a rectangle with two corners; point1<T>({x, y}), point2<T>({x, y})
-	RectTypeB: a rectangle with one corner and extension; origin<T>({x, y}), size<U>({w, h})
-	RectTypeC: a rectangle with a center and extension; center<T>({x, y}), extension<U>({w, h})
+	RectTypeA: a rectangle with two corners; point1<T>(x, y), point2<T>(x, y)
+	RectTypeB: a rectangle with one corner and extension; origin<T>(x, y), size<U>(w, h)
+	RectTypeC: a rectangle with a center and extension; center<T>(x, y), extension<U>(w, h)
 	*/
 	template <typename T>
 	class RectTypeA
@@ -71,13 +69,7 @@ namespace Imaging
 		Point2D<T> point1, point2;
 	};
 
-	/*
-	It does NOT have any user defined ctor or protected/private members, so it can use
-	aggregate initialization.
-	This class template has only two data members, and they were derived from
-	std::array<T, N>, so there is not much benefit by implementing custom ctors.
-	*/
-	template <typename T>
+	template <typename T, typename U>
 	class RectTypeB
 	{
 		static_assert(std::is_arithmetic<T>::value,
@@ -86,16 +78,16 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Operators.
-		bool operator==(const RectTypeB<T> &rhs) const;
-		bool operator!=(const RectTypeB<T> &rhs) const;
+		bool operator==(const RectTypeB<T, U> &rhs) const;
+		bool operator!=(const RectTypeB<T, U> &rhs) const;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		Point2D<T> origin;
-		Size2D<T> size;
+		Size2D<U> size;
 	};
 
-	template <typename T>
+	template <typename T, typename U>
 	class RectTypeC
 	{
 		static_assert(std::is_arithmetic<T>::value,
@@ -104,13 +96,13 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Operators.
-		bool operator==(const RectTypeC<T> &rhs) const;
-		bool operator!=(const RectTypeC<T> &rhs) const;
+		bool operator==(const RectTypeC<T, U> &rhs) const;
+		bool operator!=(const RectTypeC<T, U> &rhs) const;
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Data.
 		Point2D<T> center;
-		Size2D<T> extension;
+		Size2D<U> extension;
 	};
 }
 

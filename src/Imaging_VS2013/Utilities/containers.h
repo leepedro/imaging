@@ -14,10 +14,10 @@ namespace Imaging
 
 	It does NOT have any user defined ctor or protected/private members, so it can use
 	aggregate initialization.
-	NOTE: Since std::array<T, N> cannot be used with std::initialization_list<T> or a move ctor,
+	NOTE: Since std::array<T, N> cannot be used with a move ctor,
 	there is not much benefit to implement them for its derived classes.
 	*/
-	template <typename T, ::size_t N>
+	template <typename T, std::size_t N>
 	class Array
 	{
 		static_assert(std::is_arithmetic<T>::value,
@@ -26,41 +26,54 @@ namespace Imaging
 	public:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Overloaded operators.
-		template <typename U>
-		Array<T, N> operator+(const Array<U, N> &rhs) const;	// A = B + C
 
+		// A = B + C
 		template <typename U>
-		Array<T, N> operator-(const Array<U, N> &rhs) const;	// A = B - C
+		Array<T, N> operator+(const Array<U, N> &rhs) const;
 
+		// A = B - C
 		template <typename U>
-		Array<T, N> operator*(const Array<U, N> &rhs) const;	// A = B * C
+		Array<T, N> operator-(const Array<U, N> &rhs) const;
 
+		// A = B * C
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator+(U rhs) const;			// A = B + c
+		Array<T, N> operator*(const Array<U, N> &rhs) const;
 
+		// A = B + c
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator-(U rhs) const;			// A = B - c
+		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator+(U rhs) const;
 
+		// A = B - c
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator*(U rhs) const;			// A = B * c
+		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator-(U rhs) const;
 
+		// A = B * c
 		template <typename U>
-		void operator+=(const Array<U, N> &rhs);	// A += B
+		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator*(U rhs) const;
 
+		// A += B
 		template <typename U>
-		void operator-=(const Array<U, N> &rhs);	// A -= B
+		void operator+=(const Array<U, N> &rhs);
 
+		// A -= B
 		template <typename U>
-		void operator*=(const Array<U, N> &rhs);	// A *= B
+		void operator-=(const Array<U, N> &rhs);
 
+		// A *= B
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, void> operator+=(U rhs);			// A += b
+		void operator*=(const Array<U, N> &rhs);
 
+		// A += b
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, void> operator-=(U rhs);			// A -= b
+		std::enable_if_t<std::is_arithmetic<U>::value, void> operator+=(U rhs);
 
+		// A -= b
 		template <typename U>
-		std::enable_if_t<std::is_arithmetic<U>::value, void> operator*=(U rhs);			// A *= b
+		std::enable_if_t<std::is_arithmetic<U>::value, void> operator-=(U rhs);
+
+		// A *= b
+		template <typename U>
+		std::enable_if_t<std::is_arithmetic<U>::value, void> operator*=(U rhs);
 
 		Array<T, N> &operator++(void);	// ++A
 		Array<T, N> operator++(int);	// A++
