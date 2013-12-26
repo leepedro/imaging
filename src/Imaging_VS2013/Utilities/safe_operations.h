@@ -166,6 +166,53 @@ namespace Imaging
 	{
 		--value;
 	}
+
+	template <typename T, typename U>
+	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, T> Cast(U src)
+	{
+		T dst;
+		Cast_imp(src, dst, std::is_integral<U>(), std::is_integral<T>());
+		return dst;
+	}
+
+	// integral to integral; checking overflow
+	template <typename T, typename U>
+	void Cast_imp(U src, T &dst, std::true_type, std::true_type)
+	{
+		if (!msl::utilities::SafeCast(src, dst))
+		{
+			std::ostringstream errMsg;
+			errMsg << "The source value of cast operation exceeds the limit of " <<
+				typeid(dst).name() << " data type.";
+			throw std::overflow_error(errMsg.str());
+		}
+	}
+
+	// floating point to integral; checking overflow, suppressing data loss warning
+	template <typename T, typename U>
+	void Cast_imp(U src, T &dst, std::false_type, std::true_type)
+	{
+		if (static_cast<U>(std::numeric_limits<T>::max()) < src)
+			throw std::overflow_error("Source value is too high.");
+		else if (static_cast<U>(std::numeric_limits<T>::min()) > src)
+			throw std::overflow_error("Source value is too low.");
+		else
+			dst = static_cast<T>(src);
+	}
+
+	// integral to floating type; suppressing data loss warning if T is float
+	template <typename T, typename U>
+	void Cast_imp(U src, T &dst, std::true_type, std::false_type)
+	{
+		dst = static_cast<T>(src);
+	}
+
+	// floating to floating; suppressing data loss warning if T is double T is float
+	template <typename T, typename U>
+	void Cast_imp(U src, T &dst, std::false_type, std::false_type)
+	{
+		dst = static_cast<float>(src);
+	}
 }
 
 #endif

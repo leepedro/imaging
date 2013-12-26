@@ -6,6 +6,16 @@ namespace Imaging
 	////////////////////////////////////////////////////////////////////////////////////
 	// Point2D<T>
 
+	/*
+	This ctor is called only when T and U are different.
+	*/
+	template <typename T> template <typename U>
+	Point2D<T>::Point2D(const Point2D<U> &src) : Point2D<T>()
+	{
+		this->x = Cast<T>(src.x);
+		this->y = Cast<T>(src.y);
+	}
+
 	template <typename T>
 	Point2D<T>::Point2D(T x, T y) : Point2D<T>()
 	{

@@ -151,6 +151,17 @@ namespace Imaging
 		return temp;
 	}
 
+	// cast
+	//template <typename T, ::size_t N> template <typename U>
+	//Array<T, N>::operator Array<U, N>()
+	//{
+	//	Array<U, N> dst;
+	//	auto it = this->data.cbegin(), itEnd = this->data.cend();
+	//	for (auto itDst = dst.data.begin(); it != itEnd; ++it, ++itDst)
+	//		*itDst = Cast<U>(*it);
+	//	return dst;
+	//}
+
 	// Array<T, N>
 	////////////////////////////////////////////////////////////////////////////////////////
 

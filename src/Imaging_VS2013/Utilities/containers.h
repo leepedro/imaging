@@ -80,6 +80,9 @@ namespace Imaging
 		Array<T, N> &operator--(void);	// --A
 		Array<T, N> operator--(int);	// A--
 
+		//template <typename U>
+		//operator Array<U, N>();			// cast
+
 		////////////////////////////////////////////////////////////////////////////////////
 		// Members.
 		std::array<T, N> data;

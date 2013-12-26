@@ -78,6 +78,10 @@ void TestArray_imp(void)
 	--array20;	// {0, 1, 2}
 	array21--;	// {0, 1, 2}
 
+	// operator Array<U, N>()
+	//Imaging::Array<T, 3> array22 = arrayInt;
+	//arrayInt = array22;
+
 	std::cout << "Completed testing Array<" << typeid(T).name() << ", N>." << std::endl;
 }
 

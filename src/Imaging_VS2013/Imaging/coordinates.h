@@ -16,9 +16,12 @@ namespace Imaging
 		// Default constructors.
 		Point2D(void) = default;
 		Point2D &operator=(const Point2D<T> &src) = default;
+		Point2D(const Point2D<T> &src) = default;	// optional
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Custom constructors.
+		template <typename U>
+		Point2D(const Point2D<U> &src);
 		Point2D(T x, T y);
 		Point2D(const Array<T, 2> &srcData);
 

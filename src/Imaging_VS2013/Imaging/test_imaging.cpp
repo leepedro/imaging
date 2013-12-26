@@ -63,6 +63,9 @@ void TestPoint2D_imp(void)
 	--pt25;	// {0, 1}
 	pt26--;	// {0, 1}
 
+	Imaging::Point2D<T> pt27 = ptInt;
+	ptInt = pt27;
+
 	std::cout << "Completed testing Poinr2D<" << typeid(T).name() << ">." << std::endl;
 }
 
