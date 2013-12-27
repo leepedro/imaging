@@ -63,7 +63,10 @@ void TestPoint2D_imp(void)
 	--pt25;	// {0, 1}
 	pt26--;	// {0, 1}
 
+	// Point2D(const Point2D<U> &)
 	Imaging::Point2D<T> pt27 = ptInt;
+
+	// Point2D(const Point2D<U> &) + (default) Point2D &operator=(const Point2D<T> &)
 	ptInt = pt27;
 
 	std::cout << "Completed testing Poinr2D<" << typeid(T).name() << ">." << std::endl;
@@ -89,40 +92,99 @@ void TestImage_imp(void)
 {
 	using namespace Imaging;
 
+	std::cout << "Testing constructors of ImageFrame<" << typeid(T).name() << ">." << std::endl;
+
 	// (default) ImageFrame(void)
 	ImageFrame<T> img1;						// 0 x 0 x 0
+	std::cout << img1.size.width << " X " << img1.size.height << " X " << img1.depth << std::endl;
 
 	// ImageFrame(const Size2D<SizeType> &, SizeType = 1)
 	ImageFrame<T> img2({ 16, 8 }, 3);		// 16 x 8 x 3
+	std::cout << img2.size.width << " X " << img2.size.height << " X " << img2.depth << std::endl;
 	ImageFrame<T> img3({ 16, 8 });			// 16 x 8 x 1
+	std::cout << img3.size.width << " X " << img3.size.height << " X " << img3.depth << std::endl;
 
 	// ImageFrame(const ImageFrame<T> &)
 	ImageFrame<T> img4 = img2;				// 16 x 8 x 3
+	std::cout << img4.size.width << " X " << img4.size.height << " X " << img4.depth << std::endl;
 
 	// ImageFrame(ImageFrame<T> &&)
 	ImageFrame<T> imgTemp1({ 16, 8 });			// 0 x 0 x 0
 	ImageFrame<T> img5 = std::move(imgTemp1);	// 16 x 8 x 1
+	std::cout << imgTemp1.size.width << " X " << imgTemp1.size.height << " X " << imgTemp1.depth << std::endl;
+	std::cout << img5.size.width << " X " << img5.size.height << " X " << img5.depth << std::endl;
 
 	// ImageFrame<T> &operator=(const ImageFrame<T> &)
 	ImageFrame<T> img6;
 	img6 = img2;							// 16 x 8 x 3
+	std::cout << img6.size.width << " X " << img6.size.height << " X " << img6.depth << std::endl;
 
 	// ImageFrame<T> &operator=(ImageFrame<T> &&)
-	ImageFrame<T> img7;
 	ImageFrame<T> imgTemp2({ 16, 8 });		// 0 x 0 x 0
-	img7 = imgTemp2;						// 16 x 8 x 1
+	ImageFrame<T> img7;
+	img7 = std::move(imgTemp2);				// 16 x 8 x 1
+	std::cout << imgTemp2.size.width << " X " << imgTemp2.size.height << " X " << imgTemp2.depth << std::endl;
+	std::cout << img7.size.width << " X " << img7.size.height << " X " << img7.depth << std::endl;
 
 	// ImageFrame(const std::vector<T> &, const Size2D<SizeType> &, SizeType = 1)
-	std::vector<T> v1(128);
-	ImageFrame<T> img8(v1, { 16, 8 });
-	ImageFrame<T> img9(v1, { 8, 8 }, 2);
+	std::vector<T> v1 = GetRangeVector<T>(128);
+	ImageFrame<T> img8(v1, { 16, 8 });		// 16 x 8 x 1
+	std::cout << img8.size.width << " X " << img8.size.height << " X " << img8.depth << std::endl;
+	ImageFrame<T> img9(v1, { 8, 8 }, 2);	// 8 x 8 x 2
+	std::cout << img9.size.width << " X " << img9.size.height << " X " << img9.depth << std::endl;
 
 	// ImageFrame(std::vector<T> &&, const Size2D<SizeType> &, SizeType = 1)
-	ImageFrame<T> img10(std::vector<T>(128), { 16, 8 });
-	ImageFrame<T> img11(std::vector<T>(128), { 8, 8 }, 2);
+	ImageFrame<T> img10(std::vector<T>(128), { 16, 8 });	// 16 x 8 x 1
+	std::cout << img10.size.width << " X " << img10.size.height << " X " << img10.depth << std::endl;
+	ImageFrame<T> img11(std::vector<T>(128), { 8, 8 }, 2);	// 8 x 8 x 2
+	std::cout << img11.size.width << " X " << img11.size.height << " X " << img11.depth << std::endl;
 
-	ROI<unsigned char> roi1;
-	ROI<unsigned char> roi2 = { { 0, 0 }, { 64, 32 } };
+	std::cout << "Testing methods of ImageFrame<" << typeid(T).name() << ">." << std::endl;
+
+	// Clear()
+	ImageFrame<T> img12({ 16, 8 });
+	img12.Clear();							// 0 x 0 x 0
+	std::cout << img12.size.width << " X " << img12.size.height << " X " << img12.depth << std::endl;
+
+	// void CopyFrom(const ImageFrame<T> &, const ROI<T> &, const Point2D<SizeType> & = {0, 0})
+	ImageFrame<T> img13({ 16, 8 });
+	img13.CopyFrom(img8, { { 0, 0 }, { 8, 8 } }, Point2D<T>(1, 0));
+	std::cout << static_cast<double>(img13.At({ 1, 0 })) << std::endl;		// 0
+	std::cout << static_cast<double>(img13.At({ 2, 0 })) << std::endl;		// 1
+	img13.CopyFrom(img8, { { 0, 0 }, { 8, 8 } }, { 8, 0 });
+	std::cout << static_cast<double>(img13.At({ 8, 0 })) << std::endl;		// 0
+	std::cout << static_cast<double>(img13.At({ 9, 0 })) << std::endl;		// 1
+	img13.CopyFrom(img8, { { 0, 0 }, { 8, 8 } });
+	std::cout << static_cast<double>(img13.At({ 0, 0 })) << std::endl;		// 0
+	std::cout << static_cast<double>(img13.At({ 1, 0 })) << std::endl;		// 1
+
+	// void CopyFrom(const std::vector<T> &, const Size2D<SizeType> &, SizeType = 1)
+	img13.CopyFrom(v1, { 16, 8 }, 1);
+	std::cout << static_cast<double>(img13.At({ 1, 0 })) << std::endl;		// 1
+	img13.CopyFrom(v1, { 16, 8 });
+	std::cout << static_cast<double>(img13.At({ 1, 0 })) << std::endl;		// 1
+
+	// void CopyTo(const ROI<T> &, ImageFrame<T> &) const
+	ImageFrame<T> img14;					// 8 x 8 x 1
+	img13.CopyTo({ { 0, 0 }, { 8, 8 } }, img14);
+	std::cout << img14.size.width << " X " << img14.size.height << " X " << img14.depth << std::endl;
+
+	// void MoveFrom(std::vector<T> &&, const Size2D<SizeType> &, SizeType = 1)
+	ImageFrame<T> img15;
+	img15.MoveFrom(GetRangeVector<T>(128), { 16, 8 }, 1);
+	std::cout << static_cast<double>(img15.At({ 1, 0 })) << std::endl;		// 1
+	img15.MoveFrom(GetRangeVector<T>(128), { 16, 8 });
+	std::cout << static_cast<double>(img15.At({ 2, 0 })) << std::endl;		// 2
+
+	// void Reset(const Size2D<SizeType> &, SizeType = 1)
+	img15.Reset({ 8, 8 }, 2);
+	std::cout << img15.size.width << " X " << img15.size.height << " X " << img15.depth << std::endl;
+	img15.Reset({ 16, 8 });
+	std::cout << img15.size.width << " X " << img15.size.height << " X " << img15.depth << std::endl;
+
+	ROI<T> roi1;
+	ROI<T> roi2 = { { 0, 0 }, { 64, 32 } };
+	ROI<T> roi3{ { 0, 0 }, { 64, 32 } };
 }
 
 void TestImage(void)

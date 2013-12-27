@@ -172,6 +172,15 @@ namespace Imaging
 		FillRange(v.begin(), v.end(), static_cast<T>(0));
 		return v;
 	}
+
+	template <typename T>
+	void Copy(const T *src, std::size_t length, std::vector<T> &dst)
+	{
+		// Re-allocate destination if necessary.
+		if (dst.size() != length)
+			dst.resize(length);
+		std::copy_n(src, length, dst.begin());
+	}
 }
 
 #endif

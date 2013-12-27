@@ -90,6 +90,13 @@ namespace Imaging
 
 	template <typename T>
 	std::vector<T> GetRangeVector(std::size_t length);
+
+	/*
+	Since there is no way to check the dimension of source data, users must ensure the range.
+	Destination is resized for source data.
+	*/
+	template <typename T>
+	void Copy(const T *src, std::size_t length, std::vector<T> &dst);
 }
 
 #include "containers_inl.h"

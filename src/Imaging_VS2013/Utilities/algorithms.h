@@ -109,12 +109,18 @@ namespace Imaging
 			*it = value;
 	}
 
+	/*
+	Iterators must NOT be be incremented because it will go beyond range at the final loop.
+	Instead, compute the current position at each loop.
+	*/
 	template <typename InputIterator, typename OutputIterator, typename SizeType>
 	void CopyLines(InputIterator itSrc, SizeType stepSrc, OutputIterator itDst,
 		SizeType stepDst, SizeType nElemPerLine, SizeType nLines)
 	{
-		for (auto H = 0; H != nLines; ++H, itSrc += stepSrc, itDst += stepDst)
-			std::copy_n(it_src, nElemPerLine, itDst);
+		//for (auto H = 0; H != nLines; ++H, itSrc += stepSrc, itDst += stepDst)
+		//	std::copy_n(itSrc, nElemPerLine, itDst);
+		for (auto H = 0; H != nLines; ++H)
+			std::copy_n(itSrc + H * stepSrc, nElemPerLine, itDst + H * stepDst);
 	}
 }
 

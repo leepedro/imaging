@@ -32,6 +32,16 @@ namespace Imaging
 	////////////////////////////////////////////////////////////////////////////////////
 	// Size2D<T>
 
+	/*
+	This ctor is called only when T and U are different.
+	*/
+	template <typename T> template <typename U>
+	Size2D<T>::Size2D(const Size2D<U> &src) : Point2D<T>()
+	{
+		this->width = Cast<T>(src.width);
+		this->height = Cast<T>(src.height);
+	}
+
 	template <typename T>
 	Size2D<T>::Size2D(T width, T height) : Size2D<T>()
 	{
