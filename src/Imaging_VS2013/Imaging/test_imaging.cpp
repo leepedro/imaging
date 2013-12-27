@@ -2,6 +2,8 @@
 
 #include "image.h"
 
+#include "opencv2/opencv.hpp"
+
 template <typename T>
 void TestPoint2D_imp(void)
 {
@@ -202,8 +204,39 @@ void TestImage(void)
 	TestImage_imp<double>();
 }
 
+void TestImageProcessing(void)
+{
+	using namespace Imaging;
+
+	cv::Mat cvSrc1 = cv::imread(std::string("Lenna.png"), CV_LOAD_IMAGE_COLOR);
+	cv::namedWindow(std::string("Source 1"), CV_WINDOW_AUTOSIZE);
+	cv::imshow(std::string("Source 1"), cvSrc1);
+	cv::waitKey(0);
+
+	// Copy from cv::Mat object to ImageFrame<T>.
+	ImageFrame<unsigned char> img1;
+	std::size_t bytesPerLine1 = Cast<std::size_t>(cvSrc1.channels() * cvSrc1.cols) * sizeof(unsigned char);
+	Size2D<SizeT<unsigned char>> sz1(Cast<std::size_t>(cvSrc1.cols), Cast<std::size_t>(cvSrc1.rows));
+	img1.CopyFrom(cvSrc1.ptr(), sz1, cvSrc1.channels(), bytesPerLine1);
+
+	// Copy from ImageFrame<T> to cv::Mat.
+	cv::Mat cvDst1(Cast<int>(img1.size.height),	Cast<int>(img1.size.width), CV_8UC3, cv::Scalar(0, 0, 0));
+	ROI<unsigned char> roiSrc1 = { { 0, 0 }, img1.size };
+//#if defined(WIN32)
+//	std::copy(img1.data.cbegin(), img1.data.cend(),
+//		stdext::checked_array_iterator<unsigned char *>(cvDst1.ptr(), img1.data.size()));
+//#else
+//	std::copy(img1.data.cbegin(), img1.data.cend(), cvDst1.ptr());
+//#endif
+	std::copy_n(img1.data.cbegin(), img1.data.size(), cvDst1.ptr());
+	cv::namedWindow(std::string("Destination 1"), CV_WINDOW_AUTOSIZE);
+	cv::imshow(std::string("Destination 1"), cvDst1);
+	cv::waitKey(0);
+}
+
 int main(void)
 {
 	TestCoordinates();
 	TestImage();
+	TestImageProcessing();
 }

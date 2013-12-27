@@ -265,9 +265,9 @@ namespace Imaging
 	{
 		std::size_t nElemPerLine = d * sz.width;
 		std::size_t nElem = nElemPerLine * sz.height;
-		if (bytesPerLine == nElemPerLine * sizeof(T))
+		if (bytesPerLine == nElemPerLine * sizeof(T))	// No padding bytes
 			Copy(src, nElem, dst);
-		else if (bytesPerLine > nElemPerLine * sizeof(T))
+		else if (bytesPerLine > nElemPerLine * sizeof(T))	// padding bytes
 		{
 			// Resize destination for given dimension.
 			if (dst.size() != nElem)
@@ -278,7 +278,7 @@ namespace Imaging
 			// Then, cast it back as given type to copy element by element.
 			auto itDst = dst.begin();
 			const char *itSrc = reinterpret_cast<const char *>(src);
-			for (auto H = 0; H != height; ++H, itSrc += bytesPerLine, itDst += nElemPerLine)
+			for (auto H = 0; H != sz.height; ++H, itSrc += bytesPerLine, itDst += nElemPerLine)
 				std::copy_n(reinterpret_cast<const T *>(itSrc), nElemPerLine, itDst);
 		}
 		else
