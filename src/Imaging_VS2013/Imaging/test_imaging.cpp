@@ -65,6 +65,9 @@ void TestPoint2D_imp(void)
 	--pt25;	// {0, 1}
 	pt26--;	// {0, 1}
 
+	bool b1 = pt23 == pt24;		// true
+	bool b2 = pt25 != pt26;		// false
+
 	// Point2D(const Point2D<U> &)
 	Imaging::Point2D<T> pt27 = ptInt;
 
@@ -82,6 +85,9 @@ void TestPoint2D(void)
 	TestPoint2D_imp<unsigned long long>();
 	TestPoint2D_imp<float>();
 	TestPoint2D_imp<double>();
+
+	Imaging::Point2D<double> ptD(2.5, 3.1);
+	Imaging::Point2D<long long> ptL = Imaging::RoundAs<long long>(ptD);
 }
 
 void TestCoordinates(void)
@@ -167,8 +173,7 @@ void TestImage_imp(void)
 	std::cout << static_cast<double>(img13.At({ 1, 0 })) << std::endl;		// 1
 
 	// void CopyTo(const ROI<T> &, ImageFrame<T> &) const
-	ImageFrame<T> img14;					// 8 x 8 x 1
-	img13.CopyTo({ { 0, 0 }, { 8, 8 } }, img14);
+	ImageFrame<T> img14 = img13.CopyTo({ { 0, 0 }, { 8, 8 } });		// 8 x 8 x 1
 	std::cout << img14.size.width << " X " << img14.size.height << " X " << img14.depth << std::endl;
 
 	// void MoveFrom(std::vector<T> &&, const Size2D<SizeType> &, SizeType = 1)
@@ -215,23 +220,48 @@ void TestImageProcessing(void)
 
 	// Copy from cv::Mat object to ImageFrame<T>.
 	ImageFrame<unsigned char> img1;
-	std::size_t bytesPerLine1 = Cast<std::size_t>(cvSrc1.channels() * cvSrc1.cols) * sizeof(unsigned char);
-	Size2D<SizeT<unsigned char>> sz1(Cast<std::size_t>(cvSrc1.cols), Cast<std::size_t>(cvSrc1.rows));
-	img1.CopyFrom(cvSrc1.ptr(), sz1, cvSrc1.channels(), bytesPerLine1);
+	//std::size_t bytesPerLine1 = Cast<std::size_t>(cvSrc1.channels() * cvSrc1.cols) *
+	//	sizeof(unsigned char);
+	//img1.CopyFrom(cvSrc1.ptr(),
+	//	{ Cast<std::size_t>(cvSrc1.cols), Cast<std::size_t>(cvSrc1.rows) },
+	//	cvSrc1.channels(), bytesPerLine1);
+	img1.CopyFrom(cvSrc1.ptr(), { Cast<std::size_t>(cvSrc1.cols),
+		Cast<std::size_t>(cvSrc1.rows) }, cvSrc1.channels());
+	std::cout << "Test value = " << img1.At({ img1.size.width - 1, 0 }) << std::endl;
+
+	// Copy an ROI to a separate ImageFrame<T>.
+	ROI<unsigned char> roiSrc1 = { { 50, 50 }, img1.size - 50 };
+	ImageFrame<unsigned char> img2 = img1.CopyTo(roiSrc1);
+	std::cout << "Test value = " << img2.At({ img2.size.width - 1, 0 }) << std::endl;
 
 	// Copy from ImageFrame<T> to cv::Mat.
-	cv::Mat cvDst1(Cast<int>(img1.size.height),	Cast<int>(img1.size.width), CV_8UC3, cv::Scalar(0, 0, 0));
-	ROI<unsigned char> roiSrc1 = { { 0, 0 }, img1.size };
-//#if defined(WIN32)
-//	std::copy(img1.data.cbegin(), img1.data.cend(),
-//		stdext::checked_array_iterator<unsigned char *>(cvDst1.ptr(), img1.data.size()));
-//#else
-//	std::copy(img1.data.cbegin(), img1.data.cend(), cvDst1.ptr());
-//#endif
-	std::copy_n(img1.data.cbegin(), img1.data.size(), cvDst1.ptr());
-	cv::namedWindow(std::string("Destination 1"), CV_WINDOW_AUTOSIZE);
-	cv::imshow(std::string("Destination 1"), cvDst1);
+	cv::Mat cvDst1(Cast<int>(img2.size.height), Cast<int>(img2.size.width), CV_8UC3,
+		cv::Scalar(0, 0, 0));
+#if defined(WIN32)
+	std::copy_n(img2.data.cbegin(), img2.data.size(),
+		stdext::checked_array_iterator<unsigned char *>(cvDst1.ptr(), img2.data.size()));
+#else
+	std::copy_n(img2.data.cbegin(), img2.data.size(), cvDst1.ptr());
+#endif
+	cv::namedWindow(std::string("Copied memory"), CV_WINDOW_AUTOSIZE);
+	cv::imshow(std::string("Copied memory"), cvDst1);
 	cv::waitKey(0);
+
+	// Shared allocation of cv::Mat object from an ImageFrame<T>.
+	auto itImg1 = img1.Begin();
+	cv::Mat cvDst2(Cast<int>(img1.size.height), Cast<int>(img1.size.width), CV_8UC3, &(*itImg1));
+	cv::namedWindow(std::string("Shared memory"), CV_WINDOW_AUTOSIZE);
+	cv::imshow(std::string("Shared memory"), cvDst2);
+	cv::waitKey(0);
+
+	// Resize the image.
+	ImageFrame<unsigned char> img3;
+	//Resize(img1, roiSrc1, Point2D<double>(2.0, 2.0), img2);
+	//auto it_img2 = img2.Begin(0, 0);
+	//cv::Mat cvDst3(SafeCast<int>(img2.size.height), SafeCast<int>(img2.size.width), CV_8UC3, &(*it_img2));
+	//cv::namedWindow(std::string("Resized"), CV_WINDOW_AUTOSIZE);
+	//cv::imshow(std::string("Resized"), cvDst3);
+	//cv::waitKey(0);
 }
 
 int main(void)

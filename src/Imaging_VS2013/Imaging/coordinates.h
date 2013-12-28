@@ -55,11 +55,11 @@ namespace Imaging
 		T &height = this->data.at(1);
 	};
 
-	/*
+	/* Rectangle classes.
 	RectTypeA: a rectangle with two corners; point1<T>(x, y), point2<T>(x, y)
 	RectTypeB: a rectangle with one corner and extension; origin<T>(x, y), size<U>(w, h)
-	RectTypeC: a rectangle with a center and extension; center<T>(x, y), extension<U>(w, h)
-	*/
+	RectTypeC: a rectangle with a center and extension; center<T>(x, y), extension<U>(w, h)	*/
+
 	template <typename T>
 	class RectTypeA
 	{

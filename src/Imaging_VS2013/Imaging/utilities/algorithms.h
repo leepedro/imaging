@@ -1,17 +1,19 @@
 #if !defined(ALGORITHMS_H)
 #define ALGORITHMS_H
 
-#include <stdexcept>
+/*
+Defines common operations using standard container classes as non-member functions.
+*/
 
 #include "safe_operations.h"
 
-/*
-Defines common operations for containers as non-member functions.
-The arguments are defined as iterators instead of containers, so these functions can be
-shared by multiple container classes.
-*/
 namespace Imaging
 {
+	/*
+	The arguments are defined as iterators instead of containers, so these functions can be
+	shared by multiple container classes.
+	*/
+
 	// C = A + B
 	template <typename InputIteratorA, typename InputIteratorB, typename OutputIterator>
 	void AddRange(InputIteratorA itA, InputIteratorA itA_last, InputIteratorB itB,
@@ -39,28 +41,30 @@ namespace Imaging
 			Multiply(*itA, *itB, *itC);
 	}
 
-	// B += A
+	// A += B
 	template <typename InputIterator, typename InOutputIterator>
-	void AddRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
+	void AddRange(InputIterator itSrc, InputIterator itSrcLast, InOutputIterator itSrcDst)
 	{
-		for (; itA != itA_last; ++itA, ++itB)
-			Add(*itB, *itA, *itB);
+		for (; itSrc != itSrcLast; ++itSrc, ++itSrcDst)
+			Add(*itSrcDst, *itSrc, *itSrcDst);
 	}
 
-	// B -= A
+	// A -= B
 	template <typename InputIterator, typename InOutputIterator>
-	void SubtractRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
+	void SubtractRange(InputIterator itSrc, InputIterator itSrcLast,
+		InOutputIterator itSrcDst)
 	{
-		for (; itA != itA_last; ++itA, ++itB)
-			Subtract(*itB, *itA, *itB);
+		for (; itSrc != itSrcLast; ++itSrc, ++itSrcDst)
+			Subtract(*itSrcDst, *itSrc, *itSrcDst);
 	}
 
-	// B *= A
+	// A *= B
 	template <typename InputIterator, typename InOutputIterator>
-	void MultiplyRange(InputIterator itA, InputIterator itA_last, InOutputIterator itB)
+	void MultiplyRange(InputIterator itSrc, InputIterator itSrcLast,
+		InOutputIterator itSrcDst)
 	{
-		for (; itA != itA_last; ++itA, ++itB)
-			Multiply(*itB, *itA, *itB);
+		for (; itSrc != itSrcLast; ++itSrc, ++itSrcDst)
+			Multiply(*itSrcDst, *itSrc, *itSrcDst);
 	}
 
 	// ++A
@@ -79,40 +83,39 @@ namespace Imaging
 			Decrement(*it);
 	}
 
-	/*
-	Fill the integral range value in an ascending order while preventing overflow by
-	comparing the range value with the maximum value at each iteration. (inefficient)
-	*/
-	template <typename Iterator, typename T>
-	std::enable_if_t<std::is_integral<T>::value, void>
-		FillRange(Iterator it, Iterator itLast, T initValue)
+	/* Fills the integral range value in an ascending order from zero while preventing
+	overflow by comparing the range value with the maximum value at each iteration.
+	Once the range value reached the maximum value, it goes back to zero. (inefficient) */
+	template <typename Iterator>
+	std::enable_if_t<std::is_integral<typename Iterator::value_type>::value, void> FillRange(
+		Iterator it, Iterator itLast)
 	{
-		for (auto value = initValue, limitMax = std::numeric_limits<T>::max(),
-			limitMin = std::numeric_limits<T>::min(); it != itLast; ++it)
+		for (auto value = static_cast<typename Iterator::value_type>(0),
+			limit = std::numeric_limits<typename Iterator::value_type>::max(); it != itLast;
+			++it)
 		{
 			*it = value;
-			if (value == limitMax)
-				value = limitMin;
+			if (value == limit)
+				value = 0;
 			else
 				++value;
 		}
 	}
 
-	/*
-	Fill the floating point range value in an ascending order without the range check.
-	*/
-	template <typename Iterator, typename T>
-	std::enable_if_t<std::is_floating_point<T>::value, void>
-		FillRange(Iterator it, Iterator itLast, T initValue)
+	// Fills the floating point range value in an ascending order without the range check.
+	template <typename Iterator>
+	std::enable_if_t<std::is_floating_point<typename Iterator::value_type>::value, void> FillRange(
+		Iterator it, Iterator itLast)
 	{
-		for (auto value = initValue; it != itLast; ++it, ++value)
+		for (auto value = static_cast<typename Iterator::value_type>(0); it != itLast; ++it,
+			++value)
 			*it = value;
 	}
 
-	/*
-	Iterators must NOT be be incremented because it will go beyond range at the final loop.
-	Instead, compute the current position at each loop.
-	*/
+	// Copies periodically located data using step size (for both source and destination). 
+	/*	Incrementing iterators.
+	Iterators must NOT be be incremented for this function because it will go beyond range
+	at the final loop. Instead, compute the current position at each loop. */
 	template <typename InputIterator, typename OutputIterator, typename SizeType>
 	void CopyLines(InputIterator itSrc, SizeType stepSrc, OutputIterator itDst,
 		SizeType stepDst, SizeType nElemPerLine, SizeType nLines)

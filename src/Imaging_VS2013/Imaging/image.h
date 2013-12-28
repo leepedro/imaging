@@ -7,14 +7,20 @@
 
 namespace Imaging
 {
+	////////////////////////////////////////////////////////////////////////////////////////
 	// Forward declarations.
+
 	template <typename T> class ImageFrame;
 
+	// Forward declarations.
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////////////
 	// Template aliases.
-	/*
-	Since template alias cannot be forward declared, all template aliases should be
-	declared before any class is defined.
-	*/
+	/* Since template alias cannot be forward declared, all template aliases should be
+	declared before any class is defined (after forward declarations). */
+
 	template <typename T>
 	using SizeT = typename ImageFrame<T>::SizeType;
 
@@ -27,10 +33,14 @@ namespace Imaging
 	template <typename T>
 	using ROI = typename RectTypeB<SizeT<T>, SizeT<T>>;
 
+	// Template aliases.
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
 	/* Pixel-based bitmap (raster) image.
 
-	This class stores image data as a std::vector<T> object, so it does NOT need to release
-	the memory at the destructor and it does NOT support padding bytes.
+	This class template stores image data as a std::vector<T> object, so it does NOT need to
+	release the memory at the destructor and it cannot have padding bytes.
 	The value of image data can be modifed externally by references and iterators of the
 	std::vector<T> object.
 	The dimension of image data can be changed externally by designated member functions.
@@ -78,7 +88,9 @@ namespace Imaging
 
 		////////////////////////////////////////////////////////////////////////////////////
 		// Accessors.
-		T At(const Point2D<T> &pt) const;
+		T At(const Point2D<SizeType> &pt) const;
+		ConstIterator Cbegin(const Point2D<SizeType> &pt = { 0, 0 }) const;
+		Iterator Begin(const Point2D<SizeType> &pt = { 0, 0 });
 
 		const std::vector<T> &data = this->data_;
 		const SizeType &depth = this->depth_;
@@ -90,34 +102,40 @@ namespace Imaging
 
 		/* Copies the image data within the ROI from a source image to an ROI of this image.
 		Destination image must already have been allocated.
-		If ROI is the entire image, call CopyTo() of the source image. */
+		NOTE: If destination ROI is the entire image, then call CopyTo() of the source image
+		instead of this method. */
 		void CopyFrom(const ImageFrame<T> &imgSrc, const ROI<T> &roiSrc,
 			const Point2D<SizeType> &orgnDst = { 0, 0 });
 
 		/* Copies image data from an std::vector<T> object.
-		Destination image is resized for source data.
-		*/
+		Destination image is resized per the size of source data. */
 		void CopyFrom(const std::vector<T> &srcData, const Size2D<SizeType> &sz,
 			SizeType d = 1);
 
+		/* Copies image data from a raw pointer.
+		The source data may have padding bytes.
+		Destination image is resized per the size of source data.
+		NOTE: Since there is no way to check the dimension of source data, users must ensure
+		that the size of source data is correct. */
 		void CopyFrom(const T *src, const Size2D<SizeType> &sz, SizeType d,
 			std::size_t bytesPerLine);
+		void CopyFrom(const T *src, const Size2D<SizeType> &sz, SizeType d = 1);
 
-		/* Creates an image frame with the image data within the ROI from a source image.
-		Destination image is resized for source data.
-		*/
-		void CopyTo(const ROI<T> &roiSrc, ImageFrame<T> &imgDst) const;
+		/* Creates a seprate ImageFrame<T> object with the image data within the ROI.
+		Destination image is resized per the size of source data. */
+		ImageFrame<T> CopyTo(const ROI<T> &roiSrc) const;
 
-		/* Moves image data from an std::vector<T>. */
+		/* Moves image data from an std::vector<T>.
+		Destination image is resized per the size of source data. */
 		void MoveFrom(std::vector<T> &&srcData, const Size2D<SizeType> &sz, SizeType d = 1);
 
-		void Reset(const Size2D<SizeType> &sz, SizeType d = 1);
+		void Reset(const Size2D<SizeType> &sz, SizeType d = 1, T value = 0);
+		// Methods.
+		////////////////////////////////////////////////////////////////////////////////////
 
 	protected:
 		////////////////////////////////////////////////////////////////////////////////////
 		// Accessors.
-		ConstIterator GetCIterator(const Point2D<SizeType> &pt = { 0, 0 }) const;
-		Iterator GetIterator(const Point2D<SizeType> &pt = { 0, 0 });
 		SizeType GetOffset(const Point2D<SizeType> &pt) const;
 
 		////////////////////////////////////////////////////////////////////////////////////
@@ -135,9 +153,21 @@ namespace Imaging
 		Size2D<SizeType> size_ = Size2D<SizeType>(0, 0);
 	};
 
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions.
+
+	/* Copies image data (with padding bytes) from a raw pointer for given dimension to an
+	std::vector<T>.
+	Destination is resized per the size of source data.
+	NOTE: Since there is no way to check the dimension of source data, users must ensure
+	length is a valid value. */
 	template <typename T>
 	void Copy(const T *src, const Size2D<SizeT<T>> &sz, SizeT<T> d, std::size_t bytesPerLine,
 		std::vector<T> &dst);
+
+	// Global functions.
+	////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #include "image_inl.h"

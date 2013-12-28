@@ -31,12 +31,11 @@ namespace Imaging
 		return *this;
 	}
 
-	/*
-	Many sources say a move constructor, which calls this operator, must guarante not to
-	throw an exception.
-	Visual Studio 2013 does not support noexcept specifier at this moment.
-	If no exception guarantee is required later, remove EvalSize().
-	*/
+	/* Move ctor and noexcept.
+	Many sources say a move ctor, which calls this operator, must guarante not to throw an
+	exception.
+	Visual Studio 2013 does NOT support noexcept specifier at this moment.
+	If no exception guarantee is required later, remove EvalSize().	*/
 	template <typename T>
 	ImageFrame<T> &ImageFrame<T>::operator=(ImageFrame<T> &&src)
 	{
@@ -76,27 +75,29 @@ namespace Imaging
 	// Accessors.
 
 	template <typename T>
-	T ImageFrame<T>::At(const Point2D<T> &pt) const
+	T ImageFrame<T>::At(const Point2D<SizeType> &pt) const
 	{
-		return *this->GetCIterator(pt);
+		return *this->Cbegin(pt);
 	}
 
 	template <typename T>
-	typename ImageFrame<T>::ConstIterator ImageFrame<T>::GetCIterator(const Point2D<SizeType> &pt) const
+	typename ImageFrame<T>::ConstIterator ImageFrame<T>::Cbegin(const Point2D<SizeType> &pt)
+		const
 	{
 		this->EvalPosition(pt);
 		return this->data.cbegin() + this->GetOffset(pt);
 	}
 
 	template <typename T>
-	typename ImageFrame<T>::Iterator ImageFrame<T>::GetIterator(const Point2D<SizeType> &pt)
+	typename ImageFrame<T>::Iterator ImageFrame<T>::Begin(const Point2D<SizeType> &pt)
 	{
 		this->EvalPosition(pt);
 		return this->data_.begin() + this->GetOffset(pt);
 	}
 
 	template <typename T>
-	typename ImageFrame<T>::SizeType ImageFrame<T>::GetOffset(const Point2D<SizeType> &pt) const
+	typename ImageFrame<T>::SizeType ImageFrame<T>::GetOffset(const Point2D<SizeType> &pt)
+		const
 	{
 		return this->depth * this->size.width * pt.y + this->depth * pt.x;
 	}
@@ -127,8 +128,8 @@ namespace Imaging
 		this->EvalRoi(orgnDst, roiSrc.size);
 
 		// Copy line by line.
-		auto itSrc = imgSrc.GetCIterator(roiSrc.origin);
-		auto itDst = this->GetIterator(orgnDst);
+		auto itSrc = imgSrc.Cbegin(roiSrc.origin);
+		auto itDst = this->Begin(orgnDst);
 		CopyLines(itSrc, imgSrc.size.width * imgSrc.depth, itDst,
 			this->size.width * this->depth, roiSrc.size.width * imgSrc.depth,
 			roiSrc.size.height);
@@ -144,31 +145,42 @@ namespace Imaging
 		this->size_ = sz;
 	}
 
+	// Copy image data into an std::vector<T> object after taking off padding bytes.
 	template <typename T>
 	void ImageFrame<T>::CopyFrom(const T *src, const Size2D<SizeType> &sz, SizeType d,
 		std::size_t bytesPerLine)
 	{
-		// Copy image data into an std::vector<T> object after taking off padding bytes.
-		std::vector<T> temp;
-		Copy(src, sz, d, bytesPerLine, temp);
-		this->data_ = std::move(temp);
-		this->size_ = sz;
+		Copy(src, sz, d, bytesPerLine, this->data_);
 		this->depth_ = d;
+		this->size_ = sz;
 	}
 
 	template <typename T>
-	void ImageFrame<T>::CopyTo(const ROI<T> &roiSrc, ImageFrame<T> &imgDst) const
+	void ImageFrame<T>::CopyFrom(const T *src, const Size2D<SizeType> &sz, SizeType d)
+	{
+		std::size_t bytesPerLine = sz.width * d * sizeof(T);
+		this->CopyFrom(src, sz, d, bytesPerLine);
+	}
+
+	template <typename T>
+	ImageFrame<T> ImageFrame<T>::CopyTo(const ROI<T> &roiSrc) const
 	{
 		// Check ROI.
 		this->EvalRoi(roiSrc);
 
-		imgDst.Reset(roiSrc.size, this->depth);
-
-		// Copy line by line.
-		auto itSrc = this->GetCIterator(roiSrc.origin);
-		auto itDst = imgDst.GetIterator();
-		CopyLines(itSrc, this->size.width * this->depth, itDst,
-			imgDst.size.width * imgDst.depth, roiSrc.size.width, roiSrc.size.height);
+		ImageFrame<T> imgDst;
+		if (roiSrc == ROI<T>{ { 0, 0 }, this->size })
+			imgDst.data_ = this->data;		// Copy entire image.
+		else
+		{	// Copy ROI line by line.
+			imgDst.Reset(roiSrc.size, this->depth);
+			auto itSrc = this->Cbegin(roiSrc.origin);
+			auto itDst = imgDst.Begin();
+			CopyLines(itSrc, this->size.width * this->depth, itDst,
+				imgDst.size.width * imgDst.depth, roiSrc.size.width * this->depth,
+				roiSrc.size.height);
+		}
+		return imgDst;
 	}
 
 	template <typename T>
@@ -219,12 +231,11 @@ namespace Imaging
 		}
 	}
 
-	/*
-	Since this function does not actually use any class member, it is declared as a static
-	function.
-	It is declared as protected function for now because it is not expected to be used by
-	any client.
-	*/
+	/* Static member function.
+	Since this function does not actually use any class member, this method is declared as a
+	static function.
+	It is declared as a protected function for now because it is not expected to be used by
+	any client. */
 	template <typename T>
 	void ImageFrame<T>::EvalSize(SizeType length, SizeType w, SizeType h, SizeType d)
 	{
@@ -237,17 +248,16 @@ namespace Imaging
 		}
 	}
 
-	/*
+	/*	Minimum resizing.
 	Resizes the std::vector<T> object with zero value but does it only if necessary.
 	If size is changed while the total number of elements are the same (reshaping),
-	it does NOT run std::vector<T>::resize().
-	*/
+	it does NOT run std::vector<T>::resize(). */
 	template <typename T>
-	void ImageFrame<T>::Reset(const Size2D<SizeType> &sz, SizeType d)
+	void ImageFrame<T>::Reset(const Size2D<SizeType> &sz, SizeType d, T value)
 	{
 		SizeType nElem = sz.width * sz.height * d;
 		if (this->data.size() != nElem)
-			this->data_.resize(nElem, 0);
+			this->data_.resize(nElem, value);
 		this->depth_ = d;
 		this->size_ = sz;
 	}
@@ -259,6 +269,8 @@ namespace Imaging
 	////////////////////////////////////////////////////////////////////////////////////
 
 
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions.
 	template <typename T>
 	void Copy(const T *src, const Size2D<SizeT<T>> &sz, SizeT<T> d, std::size_t bytesPerLine,
 		std::vector<T> &dst)
@@ -266,7 +278,7 @@ namespace Imaging
 		std::size_t nElemPerLine = d * sz.width;
 		std::size_t nElem = nElemPerLine * sz.height;
 		if (bytesPerLine == nElemPerLine * sizeof(T))	// No padding bytes
-			Copy(src, nElem, dst);
+			dst.assign(src, src + nElem);
 		else if (bytesPerLine > nElemPerLine * sizeof(T))	// padding bytes
 		{
 			// Resize destination for given dimension.
@@ -287,6 +299,8 @@ namespace Imaging
 			"effective bytes per line.");
 	}
 
+	// Global functions.
+	////////////////////////////////////////////////////////////////////////////////////////
 }
 
 #endif

@@ -6,7 +6,7 @@ namespace Imaging
 	////////////////////////////////////////////////////////////////////////////////////////
 	// Array<T, N>
 
-	// A = B + C
+	// C = A + B
 	template <typename T, ::size_t N> template <typename U>
 	Array<T, N> Array<T, N>::operator+(const Array<U, N> &rhs) const
 	{
@@ -16,7 +16,7 @@ namespace Imaging
 		return result;
 	}
 
-	// A = B - C
+	// C = A - B
 	template <typename T, ::size_t N> template <typename U>
 	Array<T, N> Array<T, N>::operator-(const Array<U, N> &rhs) const
 	{
@@ -26,7 +26,7 @@ namespace Imaging
 		return result;
 	}
 
-	// A = B * C
+	// C = A * B
 	template <typename T, ::size_t N> template <typename U>
 	Array<T, N> Array<T, N>::operator*(const Array<U, N> &rhs) const
 	{
@@ -36,10 +36,14 @@ namespace Imaging
 		return result;
 	}
 
-	// A = B + c
+	/* Type checking operand arguments.
+	For operands that taking a scalar value, we must check if the operand argument is simple
+	arithmetic type, otherwise Array<U, N> is taken as U. */
+
+	// C = A + b
 	template <typename T, ::size_t N> template <typename U>
-	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>>
-		Array<T, N>::operator+(U rhs) const
+	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> Array<T, N>::operator+(
+		U rhs) const
 	{
 		Array<T, N> result;
 		auto it = this->data.cbegin(), itEnd = this->data.cend();
@@ -48,10 +52,10 @@ namespace Imaging
 		return result;
 	}
 
-	// A = B - c
+	// C = A - b
 	template <typename T, ::size_t N> template <typename U>
-	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>>
-		Array<T, N>::operator-(U rhs) const
+	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> Array<T, N>::operator-(
+		U rhs) const
 	{
 		Array<T, N> result;
 		auto it = this->data.cbegin(), itEnd = this->data.cend();
@@ -60,10 +64,10 @@ namespace Imaging
 		return result;
 	}
 
-	// A = B * c
+	// C = A * b
 	template <typename T, ::size_t N> template <typename U>
-	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>>
-		Array<T, N>::operator*(U rhs) const
+	std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> Array<T, N>::operator*(
+		U rhs) const
 	{
 		Array<T, N> result;
 		auto it = this->data.cbegin(), itEnd = this->data.cend();
@@ -92,6 +96,10 @@ namespace Imaging
 	{
 		MultiplyRange(rhs.data.cbegin(), rhs.data.cend(), this->data.begin());
 	}
+
+	/* Type checking operand arguments.
+	For operands that taking a scalar value, we must check if the operand argument is simple
+	arithmetic type, otherwise Array<U, N> is taken as U. */
 
 	// A += b
 	template <typename T, ::size_t N> template <typename U>
@@ -125,7 +133,7 @@ namespace Imaging
 		return *this;
 	}
 
-	// A++
+	// A++ (not efficient)
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator++(int)
 	{
@@ -142,13 +150,25 @@ namespace Imaging
 		return *this;
 	}
 
-	// A--
+	// A-- (not efficient)
 	template <typename T, ::size_t N>
 	Array<T, N> Array<T, N>::operator--(int)
 	{
 		Array<T, N> temp = *this;
 		--*this;
 		return temp;
+	}
+
+	template <typename T, ::size_t N>
+	bool Array<T, N>::operator==(const Array<T, N> &rhs) const
+	{
+		return this->data == rhs.data;
+	}
+
+	template <typename T, ::size_t N>
+	bool Array<T, N>::operator!=(const Array<T, N> &rhs) const
+	{
+		return this->data != rhs.data;
 	}
 
 	// cast
@@ -165,22 +185,48 @@ namespace Imaging
 	// Array<T, N>
 	////////////////////////////////////////////////////////////////////////////////////////
 
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions for Array<T, N>.
+
+	template <typename T, typename U, ::size_t N>
+	std::enable_if_t<std::is_floating_point<U>::value, Array<T, N>> RoundAs(
+		const Array<U, N> &src)
+	{
+		Array<T, N> dst;
+		auto itDst = dst.data.begin(), itDstEnd = dst.data.end();
+		for (auto itSrc = src.data.cbegin(); itDst != itDstEnd; ++itDst, ++itSrc)
+			*itDst = Cast<T>(std::round(*itSrc));
+		return dst;
+	}
+
+	// Global functions for Array<T, N>.
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions for std::vector<T>.
+
+	//template <typename T>
+	//void Copy(const T *src, std::size_t length, std::vector<T> &dst)
+	//{
+	//	// Re-allocate destination if necessary.
+	//	if (dst.size() != length)
+	//		dst.resize(length);
+	//	std::copy_n(src, length, dst.begin());
+	//}
+
 	template <typename T>
 	std::vector<T> GetRangeVector(std::size_t length)
 	{
 		std::vector<T> v(length);
-		FillRange(v.begin(), v.end(), static_cast<T>(0));
+		FillRange(v.begin(), v.end());
 		return v;
 	}
 
-	template <typename T>
-	void Copy(const T *src, std::size_t length, std::vector<T> &dst)
-	{
-		// Re-allocate destination if necessary.
-		if (dst.size() != length)
-			dst.resize(length);
-		std::copy_n(src, length, dst.begin());
-	}
+	// Global functions for std::vector<T>.
+	////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 #endif

@@ -145,6 +145,8 @@ void TestArray(void)
 	TestArrayException_imp<unsigned int>();
 	TestArrayException_imp<long long>();
 	TestArrayException_imp<unsigned long long>();
+	Imaging::Array<double, 2> arrayd = { 2.5, 3.1 };
+	Imaging::Array<long long, 2> array1 = Imaging::RoundAs<long long>(arrayd);
 }
 
 void TestRangeVector(void)

@@ -1,6 +1,11 @@
 #if !defined(CONTAINERS_H)
 #define CONTAINERS_H
 
+/*
+Defines custom container classes.
+Defines global functions using standard or custom container classes.
+*/
+
 #include <array>
 #include <vector>
 
@@ -27,27 +32,32 @@ namespace Imaging
 		////////////////////////////////////////////////////////////////////////////////////
 		// Overloaded operators.
 
-		// A = B + C
+		/* Data type of operator arguments.
+		The right-hand side argument can be a different data type, but the result is the
+		same type. In other words, C is always the same data type as A, while B or b could be
+		a different data type from A. */
+
+		// C = A + B
 		template <typename U>
 		Array<T, N> operator+(const Array<U, N> &rhs) const;
 
-		// A = B - C
+		// C = A - B
 		template <typename U>
 		Array<T, N> operator-(const Array<U, N> &rhs) const;
 
-		// A = B * C
+		// C = A * B
 		template <typename U>
 		Array<T, N> operator*(const Array<U, N> &rhs) const;
 
-		// A = B + c
+		// C = A + b
 		template <typename U>
 		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator+(U rhs) const;
 
-		// A = B - c
+		// C = A - b
 		template <typename U>
 		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator-(U rhs) const;
 
-		// A = B * c
+		// C = A * b
 		template <typename U>
 		std::enable_if_t<std::is_arithmetic<U>::value, Array<T, N>> operator*(U rhs) const;
 
@@ -76,9 +86,12 @@ namespace Imaging
 		std::enable_if_t<std::is_arithmetic<U>::value, void> operator*=(U rhs);
 
 		Array<T, N> &operator++(void);	// ++A
-		Array<T, N> operator++(int);	// A++
+		Array<T, N> operator++(int);	// A++ (not efficient)
 		Array<T, N> &operator--(void);	// --A
-		Array<T, N> operator--(int);	// A--
+		Array<T, N> operator--(int);	// A-- (not efficient)
+
+		bool operator==(const Array<T, N> &rhs) const;
+		bool operator!=(const Array<T, N> &rhs) const;
 
 		//template <typename U>
 		//operator Array<U, N>();			// cast
@@ -88,15 +101,36 @@ namespace Imaging
 		std::array<T, N> data;
 	};
 
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions for Array<T, N>.
+
+	template <typename T, typename U, ::size_t N>
+	std::enable_if_t<std::is_floating_point<U>::value, Array<T, N>>	RoundAs(
+		const Array<U, N> &src);
+
+	// Global functions for Array<T, N>.
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////////////////////////////////////////////////////////////////////
+	// Global functions for std::vector<T>.
+
+	/* Copies data from a raw pointer for given number of bytes to an std::vector<T>.
+	Destination is resized per the size of source data.
+	NOTE: Since there is no way to check the dimension of source data, users must ensure
+	length is a valid value. */
+	//template <typename T>
+	//void Copy(const T *src, std::size_t length, std::vector<T> &dst);
+
+	// Gets a std::vector<T> with a range value for given length.
+	// It is similar to range function in Python.
 	template <typename T>
 	std::vector<T> GetRangeVector(std::size_t length);
 
-	/*
-	Since there is no way to check the dimension of source data, users must ensure the range.
-	Destination is resized for source data.
-	*/
-	template <typename T>
-	void Copy(const T *src, std::size_t length, std::vector<T> &dst);
+	// Global functions for std::vector<T>.
+	////////////////////////////////////////////////////////////////////////////////////////
+
 }
 
 #include "containers_inl.h"
