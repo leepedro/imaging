@@ -147,6 +147,7 @@
     <ClInclude Include="coordinates_inl.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="image_inl.h" />
+    <ClInclude Include="opencv_interface.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test_imaging.cpp" />

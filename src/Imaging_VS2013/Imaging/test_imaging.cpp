@@ -1,8 +1,9 @@
 #include <iostream>
 
 #include "image.h"
+#include "opencv_interface.h"
 
-#include "opencv2/opencv.hpp"
+//#include "opencv2/opencv.hpp"
 
 template <typename T>
 void TestPoint2D_imp(void)
@@ -75,6 +76,10 @@ void TestPoint2D_imp(void)
 	ptInt = pt27;
 
 	std::cout << "Completed testing Poinr2D<" << typeid(T).name() << ">." << std::endl;
+
+	Imaging::ROI<T> roi1;
+	Imaging::ROI<T> roi2 = { { 0, 0 }, { 64, 32 } };
+	Imaging::ROI<T> roi3{ { 0, 0 }, { 64, 32 } };
 }
 
 void TestPoint2D(void)
@@ -189,9 +194,6 @@ void TestImage_imp(void)
 	img15.Reset({ 16, 8 });
 	std::cout << img15.size.width << " X " << img15.size.height << " X " << img15.depth << std::endl;
 
-	ROI<T> roi1;
-	ROI<T> roi2 = { { 0, 0 }, { 64, 32 } };
-	ROI<T> roi3{ { 0, 0 }, { 64, 32 } };
 }
 
 void TestImage(void)
@@ -209,35 +211,50 @@ void TestImage(void)
 	TestImage_imp<double>();
 }
 
+void TestOpenCvInterface(void)
+{
+	using namespace Imaging;
+
+	int t1 = GetOpenCvType<char>();
+	int t2 = GetOpenCvType<unsigned char>();
+	int t3 = GetOpenCvType<unsigned char>(1);
+	int t4 = GetOpenCvType<unsigned char>(3);
+	int t5 = GetOpenCvType<unsigned char>(4);
+	int t6 = GetOpenCvType<short>();
+	int t7 = GetOpenCvType<unsigned short>();
+	int t8 = GetOpenCvType<int>();
+	int t9 = GetOpenCvType<float>();
+	int t10 = GetOpenCvType<double>();
+
+
+}
+
 void TestImageProcessing(void)
 {
 	using namespace Imaging;
 
+	// Load an image from a file.
 	cv::Mat cvSrc1 = cv::imread(std::string("Lenna.png"), CV_LOAD_IMAGE_COLOR);
 	cv::namedWindow(std::string("Source 1"), CV_WINDOW_AUTOSIZE);
 	cv::imshow(std::string("Source 1"), cvSrc1);
 	cv::waitKey(0);
 
-	// Copy from cv::Mat object to ImageFrame<T>.
+	// Copy image data from cv::Mat object to ImageFrame<T>.
 	ImageFrame<unsigned char> img1;
-	//std::size_t bytesPerLine1 = Cast<std::size_t>(cvSrc1.channels() * cvSrc1.cols) *
-	//	sizeof(unsigned char);
-	//img1.CopyFrom(cvSrc1.ptr(),
-	//	{ Cast<std::size_t>(cvSrc1.cols), Cast<std::size_t>(cvSrc1.rows) },
-	//	cvSrc1.channels(), bytesPerLine1);
 	img1.CopyFrom(cvSrc1.ptr(), { Cast<std::size_t>(cvSrc1.cols),
 		Cast<std::size_t>(cvSrc1.rows) }, cvSrc1.channels());
-	std::cout << "Test value = " << img1.At({ img1.size.width - 1, 0 }) << std::endl;
+	std::cout << "Test value = " << img1.At({ img1.size.width - 1, 100 }) << std::endl;
 
 	// Copy an ROI to a separate ImageFrame<T>.
-	ROI<unsigned char> roiSrc1 = { { 50, 50 }, img1.size - 50 };
+	ROI<unsigned char> roiSrc1 = { { 100, 100 }, img1.size - 100 };
 	ImageFrame<unsigned char> img2 = img1.CopyTo(roiSrc1);
 	std::cout << "Test value = " << img2.At({ img2.size.width - 1, 0 }) << std::endl;
 
-	// Copy from ImageFrame<T> to cv::Mat.
-	cv::Mat cvDst1(Cast<int>(img2.size.height), Cast<int>(img2.size.width), CV_8UC3,
-		cv::Scalar(0, 0, 0));
-#if defined(WIN32)
+	// Copy image data from ImageFrame<T> to cv::Mat.
+	cv::Mat cvDst1;
+	ResetCvMat<unsigned char>(img2.size, img2.depth, cvDst1);
+	cv::Mat cvDst2 = CreateCvMat<unsigned char>(img2.size, img2.depth);
+#if defined(_MSC_VER)
 	std::copy_n(img2.data.cbegin(), img2.data.size(),
 		stdext::checked_array_iterator<unsigned char *>(cvDst1.ptr(), img2.data.size()));
 #else
@@ -248,25 +265,24 @@ void TestImageProcessing(void)
 	cv::waitKey(0);
 
 	// Shared allocation of cv::Mat object from an ImageFrame<T>.
-	auto itImg1 = img1.Begin();
-	cv::Mat cvDst2(Cast<int>(img1.size.height), Cast<int>(img1.size.width), CV_8UC3, &(*itImg1));
+	cv::Mat cvDstShared = CreateCvMatShared(img1);
 	cv::namedWindow(std::string("Shared memory"), CV_WINDOW_AUTOSIZE);
-	cv::imshow(std::string("Shared memory"), cvDst2);
+	cv::imshow(std::string("Shared memory"), cvDstShared);
 	cv::waitKey(0);
 
 	// Resize the image.
-	ImageFrame<unsigned char> img3;
-	//Resize(img1, roiSrc1, Point2D<double>(2.0, 2.0), img2);
-	//auto it_img2 = img2.Begin(0, 0);
-	//cv::Mat cvDst3(SafeCast<int>(img2.size.height), SafeCast<int>(img2.size.width), CV_8UC3, &(*it_img2));
-	//cv::namedWindow(std::string("Resized"), CV_WINDOW_AUTOSIZE);
-	//cv::imshow(std::string("Resized"), cvDst3);
-	//cv::waitKey(0);
+	cv::Mat cvZm;
+	cv::Mat cvDstShared2 = CreateCvMatShared(img2);
+	cv::resize(cvDstShared2, cvZm, { 0, 0 }, 1.5, 1.5, cv::INTER_CUBIC);
+	cv::namedWindow(std::string("Resized"), CV_WINDOW_AUTOSIZE);
+	cv::imshow(std::string("Resized"), cvZm);
+	cv::waitKey(0);
 }
 
 int main(void)
 {
 	TestCoordinates();
 	TestImage();
+	TestOpenCvInterface();
 	TestImageProcessing();
 }

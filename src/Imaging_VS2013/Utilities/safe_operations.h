@@ -13,10 +13,12 @@ Uses the downloadable SafeInt.hpp from http://safeint.codeplex.com/ for other co
 #include <type_traits>
 #include <typeinfo>
 
-#if defined(_MSC_VER) || (defined(__ICC) && defined(_WIN32))
+#if defined(_MSC_VER)
+// Use the built-in safeint.h for Visual C++.
 #include <safeint.h>
 using namespace msl::utilities;
 #else
+// Use the downloadable SafeInt.hpp from http://safeint.codeplex.com/ for other compilers.
 #include "SafeInt.hpp"
 #endif
 
@@ -37,9 +39,10 @@ namespace Imaging
 	value through the template parameter. */
 
 	template <typename T, typename U>
-	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void> 
-		Add(T t, U u, T &result)
+	void Add(T t, U u, T &result)
 	{
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
+			"Only arithmetic data types are supported for this function template.");
 		Add_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
@@ -79,9 +82,10 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void>
-		Subtract(T t, U u, T &result)
+	void Subtract(T t, U u, T &result)
 	{
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
+			"Only arithmetic data types are supported for this function template.");
 		Subtract_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
@@ -121,9 +125,10 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, void>
-		Multiply(T t, U u, T &result)
+	void Multiply(T t, U u, T &result)
 	{
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
+			"Only arithmetic data types are supported for this function template.");
 		Multiply_imp(t, u, result, std::is_integral<T>(), std::is_integral<U>());
 	}
 
@@ -163,8 +168,10 @@ namespace Imaging
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, void> Increment(T &value)
+	void Increment(T &value)
 	{
+		static_assert(std::is_arithmetic<T>::value,
+			"Only arithmetic data types are supported for this function template.");
 		Increment_imp(value, std::is_integral<T>());
 	}
 
@@ -183,8 +190,10 @@ namespace Imaging
 	}
 
 	template <typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, void> Decrement(T &value)
+	void Decrement(T &value)
 	{
+		static_assert(std::is_arithmetic<T>::value,
+			"Only arithmetic data types are supported for this function template.");
 		Decrement_imp(value, std::is_integral<T>());
 	}
 
@@ -203,8 +212,10 @@ namespace Imaging
 	}
 
 	template <typename T, typename U>
-	std::enable_if_t<std::is_arithmetic<T>::value && std::is_arithmetic<U>::value, T> Cast(U src)
+	T Cast(U src)
 	{
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
+			"Only arithmetic data types are supported for this function template.");
 		T dst;
 		Cast_imp(src, dst, std::is_integral<U>(), std::is_integral<T>());
 		return dst;

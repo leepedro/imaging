@@ -180,6 +180,9 @@ namespace Imaging
 				imgDst.size.width * imgDst.depth, roiSrc.size.width * this->depth,
 				roiSrc.size.height);
 		}
+
+		imgDst.depth_ = this->depth;
+		imgDst.size_ = roiSrc.size;
 		return imgDst;
 	}
 
