@@ -80,6 +80,10 @@ void TestPoint2D_imp(void)
 	Imaging::ROI<T> roi1;
 	Imaging::ROI<T> roi2 = { { 0, 0 }, { 64, 32 } };
 	Imaging::ROI<T> roi3{ { 0, 0 }, { 64, 32 } };
+	if (roi2 == roi3)
+		std::cout << "good" << std::endl;
+	if (roi2 == Imaging::ROI<T>{{ 0, 0 }, roi3.size})
+		std::cout << "good" << std::endl;
 }
 
 void TestPoint2D(void)
@@ -93,6 +97,8 @@ void TestPoint2D(void)
 
 	Imaging::Point2D<double> ptD(2.5, 3.1);
 	Imaging::Point2D<long long> ptL = Imaging::RoundAs<long long>(ptD);
+	if (ptD == Imaging::Point2D<double>{2.5, 3.1})
+		std::cout << "good" << std::endl;
 }
 
 void TestCoordinates(void)
