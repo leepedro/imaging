@@ -24,9 +24,6 @@
     <ClInclude Include="containers_inl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="safe_operations_problem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="safe_operations.h">
       <Filter>Header Files</Filter>
     </ClInclude>

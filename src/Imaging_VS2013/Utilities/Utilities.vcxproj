@@ -155,7 +155,6 @@
     <ClInclude Include="containers.h" />
     <ClInclude Include="containers_inl.h" />
     <ClInclude Include="safe_operations.h" />
-    <ClInclude Include="safe_operations_problem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test_utilities.cpp" />

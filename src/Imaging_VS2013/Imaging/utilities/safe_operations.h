@@ -63,7 +63,7 @@ namespace Imaging
 	template <typename T, typename U>
 	void Add_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
-		static_assert(std::is_integral<T>::value && !std::is_integral<U>::value,
+		static_assert(!std::is_integral<T>::value || std::is_integral<U>::value,
 			"Unsupported scenario.");
 	}
 
@@ -106,7 +106,7 @@ namespace Imaging
 	template <typename T, typename U>
 	void Subtract_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
-		static_assert(std::is_integral<T>::value && !std::is_integral<U>::value,
+		static_assert(!std::is_integral<T>::value || std::is_integral<U>::value,
 			"Unsupported scenario.");
 	}
 
@@ -149,7 +149,7 @@ namespace Imaging
 	template <typename T, typename U>
 	void Multiply_imp(T t, U u, T &result, std::true_type, std::false_type)
 	{
-		static_assert(std::is_integral<T>::value && !std::is_integral<U>::value,
+		static_assert(!std::is_integral<T>::value || std::is_integral<U>::value,
 			"Unsupported scenario.");
 	}
 
