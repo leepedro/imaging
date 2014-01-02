@@ -80,7 +80,7 @@ namespace Imaging
 	template <typename T, typename U>
 	class RectTypeB
 	{
-		static_assert(std::is_arithmetic<T>::value,
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
 		"origin must be integral data type and size must be unsigned integral type.");
 
 	public:
@@ -98,7 +98,7 @@ namespace Imaging
 	template <typename T, typename U>
 	class RectTypeC
 	{
-		static_assert(std::is_arithmetic<T>::value,
+		static_assert(std::is_arithmetic<T>::value && std::is_arithmetic<U>::value,
 		"Only arithmetic data types are supported for this class template.");
 
 	public:

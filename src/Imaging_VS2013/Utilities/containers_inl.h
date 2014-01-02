@@ -76,6 +76,8 @@ namespace Imaging
 		return result;
 	}
 
+	// INCORRECT!!!
+	// Array<T, N> &Array<T, N>::operator+=(const Array<U, N> &rhs) { Addrange(); return *this; }
 	// A += B
 	template <typename T, ::size_t N> template <typename U>
 	void Array<T, N>::operator+=(const Array<U, N> &rhs)
